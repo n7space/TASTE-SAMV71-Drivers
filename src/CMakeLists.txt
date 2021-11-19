@@ -1,2 +1,2 @@
-add_subdirectory(RuntimeMocks)
-add_subdirectory(linux_serial_ccsds)
+#add_subdirectory(RuntimeMocks)
+add_subdirectory(samv71_serial_ccsds)
