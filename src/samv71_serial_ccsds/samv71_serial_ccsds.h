@@ -26,37 +26,25 @@
 /**
  * @file     samv71_serial_ccsds.h
  * @brief    Driver for TASTE with uses UART for communication
-
  */
 
+#include <Escaper.h>
+#include <drivers_config.h>
 #include <system_spec.h>
 
-#include <drivers_config.h>
-
-#include <Broker.h>
+#include <stddef.h>
 
 /**
- * @brief Function which implements receiving data from remote partition.
+ * @brief Structure for driver internal data
  *
- * Functions works in separate thread, which is initialized by @link
- * SamV71SerialCcsdsSend
- *
- * @param private_data   Driver private data, allocated by runtime
+ * This structure is allocated by runtime and the pointer is passed to all driver functions.
+ * The name of this structure shall match driver definition from ocarina_components.aadl
+ * and has suffix '_private_data'.
  */
-void SamV71SerialCcsdsPoll(void *private_data);
-
-/**
- * @brief Send data to remote partition.
- *
- * Function is used by runtime.
- *
- * @param private_data   Driver private data, allocated by runtime
- * @param data           The Buffer which data to send to connected remote
- * partition
- * @param length         The size of the buffer
- */
-void SamV71SerialCcsdsSend(void *private_data, const uint8_t *const data,
-                           const size_t length);
+typedef struct samv71_serial_ccsds_private_data final
+{
+    Serial_CCSDS_SamV71_Conf_T* device;
+};
 
 /**
  * @brief Initialize driver.
@@ -70,9 +58,32 @@ void SamV71SerialCcsdsSend(void *private_data, const uint8_t *const data,
  * @param remote_device_configuration Configuration of remote device
  */
 void SamV71SerialCcsdsInit(
-    void *private_data, const enum SystemBus bus_id,
+    void* private_data, const enum SystemBus bus_id,
     const enum SystemDevice device_id,
-    const Serial_CCSDS_SamV71_Conf_T *const device_configuration,
-    const Serial_CCSDS_SamV71_Conf_T *const remote_device_configuration);
+    const Serial_CCSDS_SamV71_Conf_T* const device_configuration,
+    const Serial_CCSDS_SamV71_Conf_T* const remote_device_configuration);
+
+/**
+ * @brief Function which implements receiving data from remote partition.
+ *
+ * Functions works in separate thread, which is initialized by @link
+ * SamV71SerialCcsdsSend
+ *
+ * @param private_data   Driver private data, allocated by runtime
+ */
+void SamV71SerialCcsdsPoll(void* private_data);
+
+/**
+ * @brief Send data to remote partition.
+ *
+ * Function is used by runtime.
+ *
+ * @param private_data   Driver private data, allocated by runtime
+ * @param data           The Buffer which data to send to connected remote
+ * partition
+ * @param length         The size of the buffer
+ */
+void SamV71SerialCcsdsSend(void* private_data, const uint8_t* const data,
+    const size_t length);
 
 #endif

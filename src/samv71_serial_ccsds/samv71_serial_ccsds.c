@@ -22,21 +22,6 @@
 
 #include "samv71_serial_ccsds.h"
 
-void SamV71SerialCcsdsPoll(void *private_data) {}
-
-/**
- * @brief Send data to remote partition.
- *
- * Function is used by runtime.
- *
- * @param private_data   Driver private data, allocated by runtime
- * @param data           The Buffer which data to send to connected remote
- * partition
- * @param length         The size of the buffer
- */
-void SamV71SerialCcsdsSend(void *private_data, const uint8_t *const data,
-                           const size_t length) {}
-
 /**
  * @brief Initialize driver.
  *
@@ -53,3 +38,18 @@ void SamV71SerialCcsdsInit(
     const enum SystemDevice device_id,
     const Serial_CCSDS_SamV71_Conf_T *const device_configuration,
     const Serial_CCSDS_SamV71_Conf_T *const remote_device_configuration) {}
+
+void SamV71SerialCcsdsPoll(void *private_data) {}
+
+/**
+ * @brief Send data to remote partition.
+ *
+ * Function is used by runtime.
+ *
+ * @param private_data   Driver private data, allocated by runtime
+ * @param data           The Buffer which data to send to connected remote
+ * partition
+ * @param length         The size of the buffer
+ */
+void SamV71SerialCcsdsSend(void *private_data, const uint8_t *const data,
+                           const size_t length) {}
