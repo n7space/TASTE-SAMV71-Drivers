@@ -12,7 +12,8 @@ target_sources(SamV71SerialCcsds
 target_link_libraries(SamV71SerialCcsds
   PRIVATE   common_build_options
             TASTE::Escaper
-  PUBLIC    SAMV71::Runtime::Hal)
+  PUBLIC    SAMV71::Runtime::Hal
+            SAMV71::Uart)
             # SAMV71::FreeRTOS)
 
 add_format_target(SamV71SerialCcsds)

@@ -28,7 +28,7 @@
  * @brief    Driver for TASTE with uses UART for communication
  */
 
-#include <Broker.h>
+// #include <Broker.h>
 #include <Escaper.h>
 
 #include <drivers_config.h>
@@ -42,7 +42,7 @@
 
 #define Serial_CCSDS_SAMV71_RECV_BUFFER_SIZE 127
 #define Serial_CCSDS_SAMV71_ENCODED_PACKET_BUFFER_SIZE 127
-#define Serial_CCSDS_SAMV71_DECODED_PACKET_BUFFER_SIZE BROKER_BUFFER_SIZE
+#define Serial_CCSDS_SAMV71_DECODED_PACKET_BUFFER_SIZE 18 // BROKER_BUFFER_SIZE
 
 /**
  * @brief Structure for driver internal data
