@@ -30,7 +30,8 @@ typedef uint64_t asn1SccUint64;
 typedef asn1SccUint64 asn1SccUint;
 typedef bool flag;
 
-typedef enum {
+typedef enum
+{
   b9600 = 0,
   b19200 = 1,
   b38400 = 2,
@@ -48,14 +49,16 @@ typedef asn1SccUint Serial_CCSDS_SamV71_Conf_T_bits;
 
 typedef flag Serial_CCSDS_SamV71_Conf_T_use_paritybit;
 
-typedef struct {
+typedef struct
+{
   Serial_CCSDS_SamV71_Conf_T_devname devname;
   Serial_CCSDS_SamV71_Baudrate_T speed;
   Serial_CCSDS_SamV71_Parity_T parity;
   Serial_CCSDS_SamV71_Conf_T_bits bits;
   Serial_CCSDS_SamV71_Conf_T_use_paritybit use_paritybit;
 
-  struct {
+  struct
+  {
     unsigned int speed : 1;
     unsigned int parity : 1;
     unsigned int bits : 1;

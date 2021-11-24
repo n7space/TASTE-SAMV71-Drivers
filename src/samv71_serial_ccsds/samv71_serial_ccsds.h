@@ -28,40 +28,59 @@
  * @brief    Driver for TASTE with uses UART for communication
  */
 
+#include <Broker.h>
 #include <Escaper.h>
+
 #include <drivers_config.h>
 #include <system_spec.h>
 
 #include <stddef.h>
 
+#include <Hal.h>
+
+// #include <task.h>
+
+#define Serial_CCSDS_SAMV71_RECV_BUFFER_SIZE 127
+#define Serial_CCSDS_SAMV71_ENCODED_PACKET_BUFFER_SIZE 127
+#define Serial_CCSDS_SAMV71_DECODED_PACKET_BUFFER_SIZE BROKER_BUFFER_SIZE
+
 /**
  * @brief Structure for driver internal data
  *
- * This structure is allocated by runtime and the pointer is passed to all driver functions.
- * The name of this structure shall match driver definition from ocarina_components.aadl
- * and has suffix '_private_data'.
+ * This structure is allocated by runtime and the pointer is passed to all
+ * driver functions. The name of this structure shall match driver definition
+ * from ocarina_components.aadl and has suffix '_private_data'.
  */
-typedef struct samv71_serial_ccsds_private_data final
-{
-    Serial_CCSDS_SamV71_Conf_T* device;
-};
+typedef struct final {
+  Serial_CCSDS_SamV71_Device_T dev;
+  Hal_Uart halUart;
+  Hal_Uart_Config halUartConfig;
+  // TaskHandle_t m_task;
+  uint8_t m_recv_buffer[Serial_CCSDS_SAMV71_RECV_BUFFER_SIZE];
+  uint8_t
+      m_encoded_packet_buffer[Serial_CCSDS_SAMV71_ENCODED_PACKET_BUFFER_SIZE];
+  uint8_t
+      m_decoded_packet_buffer[Serial_CCSDS_SAMV71_DECODED_PACKET_BUFFER_SIZE];
+  Escaper escaper;
+} samv71_serial_ccsds_private_data;
 
 /**
  * @brief Initialize driver.
  *
  * Function is used by runtime to initialize the driver.
  *
- * @param private_data   Driver private data, allocated by runtime
- * @param bus_id         Identifier of the bus, which is used by driver
- * @param device_id      Identifier of the device
- * @param device_configuration Configuration of device
- * @param remote_device_configuration Configuration of remote device
+ * @param private_data                  Driver private data, allocated by
+ * runtime
+ * @param bus_id                        Identifier of the bus, which is driver
+ * @param device_id                     Identifier of the device
+ * @param device_configuration          Configuration of device
+ * @param remote_device_configuration   Configuration of remote device
  */
 void SamV71SerialCcsdsInit(
-    void* private_data, const enum SystemBus bus_id,
+    void *private_data, const enum SystemBus bus_id,
     const enum SystemDevice device_id,
-    const Serial_CCSDS_SamV71_Conf_T* const device_configuration,
-    const Serial_CCSDS_SamV71_Conf_T* const remote_device_configuration);
+    const Serial_CCSDS_SamV71_Conf_T *const device_configuration,
+    const Serial_CCSDS_SamV71_Conf_T *const remote_device_configuration);
 
 /**
  * @brief Function which implements receiving data from remote partition.
@@ -71,7 +90,7 @@ void SamV71SerialCcsdsInit(
  *
  * @param private_data   Driver private data, allocated by runtime
  */
-void SamV71SerialCcsdsPoll(void* private_data);
+void SamV71SerialCcsdsPoll(void *private_data);
 
 /**
  * @brief Send data to remote partition.
@@ -83,7 +102,7 @@ void SamV71SerialCcsdsPoll(void* private_data);
  * partition
  * @param length         The size of the buffer
  */
-void SamV71SerialCcsdsSend(void* private_data, const uint8_t* const data,
-    const size_t length);
+void SamV71SerialCcsdsSend(void *private_data, const uint8_t *const data,
+                           const size_t length);
 
 #endif
