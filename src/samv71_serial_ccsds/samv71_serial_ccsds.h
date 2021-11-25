@@ -28,7 +28,7 @@
  * @brief    Driver for TASTE with uses UART for communication
  */
 
-// #include <Broker.h>
+#include <Broker.h>
 #include <Escaper.h>
 
 #include <drivers_config.h>
@@ -38,7 +38,9 @@
 
 #include <Hal.h>
 
-// #include <task.h>
+#include <FreeRTOS.h>
+#include <semphr.h>
+#include <task.h>
 
 #define Serial_CCSDS_SAMV71_RECV_BUFFER_SIZE 127
 #define Serial_CCSDS_SAMV71_ENCODED_PACKET_BUFFER_SIZE 127
@@ -52,16 +54,22 @@
  * from ocarina_components.aadl and has suffix '_private_data'.
  */
 typedef struct final {
-  Serial_CCSDS_SamV71_Device_T dev;
-  Hal_Uart halUart;
-  Hal_Uart_Config halUartConfig;
-  // TaskHandle_t m_task;
+  Serial_CCSDS_SamV71_Device_T m_device;
+  Hal_Uart m_hal_uart;
+  Hal_Uart_Config m_hal_uart_config;
   uint8_t m_recv_buffer[Serial_CCSDS_SAMV71_RECV_BUFFER_SIZE];
   uint8_t
       m_encoded_packet_buffer[Serial_CCSDS_SAMV71_ENCODED_PACKET_BUFFER_SIZE];
   uint8_t
       m_decoded_packet_buffer[Serial_CCSDS_SAMV71_DECODED_PACKET_BUFFER_SIZE];
-  Escaper escaper;
+  Escaper m_escaper;
+  TaskHandle_t m_task;
+
+  Uart_RxHandler m_uart_rx_handler;
+  SemaphoreHandle_t m_rx_semaphore;
+  Uart_TxHandler m_uart_tx_handler;
+  SemaphoreHandle_t m_tx_semaphore;
+
 } samv71_serial_ccsds_private_data;
 
 /**
