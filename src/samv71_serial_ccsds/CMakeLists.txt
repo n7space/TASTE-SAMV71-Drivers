@@ -5,7 +5,7 @@ target_sources(SamV71SerialCcsds
 
  target_include_directories(SamV71SerialCcsds
   PUBLIC    ${CMAKE_SOURCE_DIR}/src/RuntimeMocks
-            ${CMAKE_SOURCE_DIR}/TASTE-SAMV71-Runtime/src/Hal)
+            ${CMAKE_SOURCE_DIR}/TASTE-SAMV71-Runtime/src)
 
 target_link_libraries(SamV71SerialCcsds
   PRIVATE   common_build_options

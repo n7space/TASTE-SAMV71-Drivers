@@ -29,7 +29,7 @@
 #define DRIVER_TASK_STACK_SIZE configMINIMAL_STACK_SIZE
 #define DRIVER_TASK_PRIORITY configMAX_SYSCALL_INTERRUPT_PRIORITY + 1
 
-inline void
+static inline void
 SamV71SerialCcsdsInit_uart_register(samv71_serial_ccsds_private_data *self) {
   switch (self->m_device) {
   case uart0:
@@ -51,7 +51,7 @@ SamV71SerialCcsdsInit_uart_register(samv71_serial_ccsds_private_data *self) {
     assert("Not supported device name");
   }
 }
-inline void
+static inline void
 SamV71SerialCcsdsInit_uart_data_bits(samv71_serial_ccsds_private_data *self,
                                      Serial_CCSDS_SamV71_Conf_T_bits bits) {
   (void)self;
@@ -59,7 +59,7 @@ SamV71SerialCcsdsInit_uart_data_bits(samv71_serial_ccsds_private_data *self,
     assert("Not supported number of data bits");
   }
 }
-inline void SamV71SerialCcsdsInit_uart_parity(
+static inline void SamV71SerialCcsdsInit_uart_parity(
     samv71_serial_ccsds_private_data *self,
     Serial_CCSDS_SamV71_Conf_T_use_paritybit useParity,
     Serial_CCSDS_SamV71_Parity_T parity) {
@@ -78,7 +78,7 @@ inline void SamV71SerialCcsdsInit_uart_parity(
     self->m_hal_uart_config.parity = Uart_Parity_None;
   }
 }
-inline void
+static inline void
 SamV71SerialCcsdsInit_uart_baudrate(samv71_serial_ccsds_private_data *self,
                                     Serial_CCSDS_SamV71_Baudrate_T speed) {
 

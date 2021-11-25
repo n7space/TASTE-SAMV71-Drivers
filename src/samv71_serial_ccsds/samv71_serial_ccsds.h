@@ -36,7 +36,7 @@
 
 #include <stddef.h>
 
-#include <Hal.h>
+#include <Hal/Hal.h>
 
 #include <FreeRTOS.h>
 #include <semphr.h>
