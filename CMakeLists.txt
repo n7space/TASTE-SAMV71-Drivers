@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.13 FATAL_ERROR)
-set(CMAKE_TOOLCHAIN_FILE ${CMAKE_SOURCE_DIR}/toolchains/samv71.cmake)
+set(CMAKE_TOOLCHAIN_FILE ${CMAKE_SOURCE_DIR}/TASTE-SAMV71-Runtime/toolchains/samv71.cmake)
 project(TASTE-SAMV71-Drivers VERSION 1.0.0 LANGUAGES C)
 
 set(CMAKE_C_STANDARD 99)
@@ -69,5 +69,5 @@ add_subdirectory(TASTE-SAMV71-Runtime/SAMV71-BSP/src/Pmc)
 add_subdirectory(TASTE-SAMV71-Runtime/SAMV71-BSP/src/Uart)
 add_subdirectory(TASTE-SAMV71-Runtime/SAMV71-BSP/src/Utils)
 add_subdirectory(TASTE-SAMV71-Runtime/src/Hal)
-# add_subdirectory(TASTE-SAMV71-Runtime/src/FreeRTOS)
+add_subdirectory(TASTE-SAMV71-Runtime/src/FreeRTOS)
 add_subdirectory(src)
