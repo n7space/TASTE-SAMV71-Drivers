@@ -1,7 +1,6 @@
 add_executable(Samv71Demo)
 target_sources(Samv71Demo
-    PRIVATE     main.c
-    ${CMAKE_SOURCE_DIR}/TASTE-SAMV71-Runtime/src)
+    PRIVATE     main.c)
 target_include_directories(Samv71Demo
     PRIVATE     ${CMAKE_SOURCE_DIR}/TASTE-SAMV71-Runtime/src
                 ${CMAKE_SOURCE_DIR}/src/RuntimeMocks
