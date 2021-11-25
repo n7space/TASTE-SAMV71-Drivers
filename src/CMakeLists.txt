@@ -1,1 +1,2 @@
 add_subdirectory(samv71_serial_ccsds)
+add_subdirectory(app)

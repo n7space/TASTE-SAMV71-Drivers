@@ -52,6 +52,11 @@ if(CMAKE_C_COMPILER_ID STREQUAL "Clang")
 
   target_compile_options(common_build_options INTERFACE ${PROJECT_WARNINGS})
 
+add_library(bsp_build_options INTERFACE)
+target_compile_definitions(bsp_build_options
+    INTERFACE   USE_UART_IO
+                LOW_LEVEL_IO_UART_ID=4)
+
 include(CppCheck)
 include(ClangTidy)
 include(ClangFormat)
@@ -64,10 +69,15 @@ add_subdirectory(TASTE-Runtime-Common/src/Broker)
 add_subdirectory(TASTE-Runtime-Common/src/Escaper)
 add_subdirectory(TASTE-SAMV71-Runtime/SAMV71-BSP/src/Startup)
 add_subdirectory(TASTE-SAMV71-Runtime/SAMV71-BSP/src/Nvic)
+add_subdirectory(TASTE-SAMV71-Runtime/SAMV71-BSP/src/Wdt)
+add_subdirectory(TASTE-SAMV71-Runtime/SAMV71-BSP/src/Fpu)
+add_subdirectory(TASTE-SAMV71-Runtime/SAMV71-BSP/src/Sdramc)
 add_subdirectory(TASTE-SAMV71-Runtime/SAMV71-BSP/src/Pio)
 add_subdirectory(TASTE-SAMV71-Runtime/SAMV71-BSP/src/Pmc)
 add_subdirectory(TASTE-SAMV71-Runtime/SAMV71-BSP/src/Uart)
 add_subdirectory(TASTE-SAMV71-Runtime/SAMV71-BSP/src/Utils)
 add_subdirectory(TASTE-SAMV71-Runtime/src/Hal)
-add_subdirectory(TASTE-SAMV71-Runtime/src/FreeRTOS)
+add_subdirectory(TASTE-SAMV71-Runtime/src/Init)
+add_subdirectory(TASTE-SAMV71-Runtime/src/BrokerLock)
+add_subdirectory(TASTE-SAMV71-Runtime/FreeRTOS)
 add_subdirectory(src)
