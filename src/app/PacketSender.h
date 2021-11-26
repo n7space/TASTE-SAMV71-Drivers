@@ -38,6 +38,6 @@
  * @param[in]   arg            Pointer to private data passed to the thread
  * method
  */
-void SendPacket(void* arg);
+void SendPacket(void *arg);
 
 #endif

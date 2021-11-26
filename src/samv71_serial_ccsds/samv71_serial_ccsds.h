@@ -58,19 +58,16 @@ typedef struct final {
   Serial_CCSDS_SamV71_Device_T m_device;
   Hal_Uart m_hal_uart;
   Hal_Uart_Config m_hal_uart_config;
-
   uint8_t m_fifo_memory_block[Serial_CCSDS_SAMV71_FIFO_BUFFER_SIZE];
   uint8_t m_recv_buffer[Serial_CCSDS_SAMV71_RECV_BUFFER_SIZE];
   uint8_t m_encoded_packet_buffer[Serial_CCSDS_SAMV71_ENCODED_PACKET_MAX_SIZE];
   uint8_t m_decoded_packet_buffer[Serial_CCSDS_SAMV71_DECODED_PACKET_MAX_SIZE];
   Escaper m_escaper;
   TaskHandle_t m_task;
-
   Uart_RxHandler m_uart_rx_handler;
   SemaphoreHandle_t m_rx_semaphore;
   Uart_TxHandler m_uart_tx_handler;
   SemaphoreHandle_t m_tx_semaphore;
-
 } samv71_serial_ccsds_private_data;
 
 /**
