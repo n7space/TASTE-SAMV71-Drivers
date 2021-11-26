@@ -25,10 +25,7 @@
 #include <assert.h>
 
 #include <EscaperInternal.h>
-
-// todo extract to external
-#define DRIVER_TASK_STACK_SIZE 512
-#define DRIVER_TASK_PRIORITY 1
+#include <samv71_serial_ccsds_internal.h>
 
 static inline void
 SamV71SerialCcsdsInit_uart_register(samv71_serial_ccsds_private_data *self) {
