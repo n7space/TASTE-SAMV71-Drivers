@@ -23,6 +23,16 @@
 #ifndef PACKET_SENDER_H
 #define PACKET_SENDER_H
 
-void SendPacket(void *args);
+/**
+ * @brief   Thread method. Initializes and sends packages
+ *
+ * Pointer to this function should be pass as xTaskCreate TaskFunciton_t
+ * argument. This function will create a constant packet and then it will be
+ * sending it every 250ms
+ *
+ * @param[in]   arg            Pointer to private data passed to the thread
+ * method
+ */
+void SendPacket(void *arg);
 
 #endif
