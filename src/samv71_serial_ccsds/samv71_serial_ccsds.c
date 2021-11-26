@@ -26,11 +26,12 @@
 
 #include <EscaperInternal.h>
 
-#define DRIVER_TASK_STACK_SIZE configMINIMAL_STACK_SIZE
-#define DRIVER_TASK_PRIORITY configMAX_SYSCALL_INTERRUPT_PRIORITY + 1
+// todo extract to external
+#define DRIVER_TASK_STACK_SIZE 127
+#define DRIVER_TASK_PRIORITY 1
 
 static inline void
-SamV71SerialCcsdsInit_uart_register(samv71_serial_ccsds_private_data *self) {
+SamV71SerialCcsdsInit_uart_register(samv71_serial_ccsds_private_data* self) {
   switch (self->m_device) {
   case uart0:
     self->m_hal_uart_config.id = Uart_Id_0;
@@ -52,17 +53,17 @@ SamV71SerialCcsdsInit_uart_register(samv71_serial_ccsds_private_data *self) {
   }
 }
 static inline void
-SamV71SerialCcsdsInit_uart_data_bits(samv71_serial_ccsds_private_data *self,
-                                     Serial_CCSDS_SamV71_Conf_T_bits bits) {
+SamV71SerialCcsdsInit_uart_data_bits(samv71_serial_ccsds_private_data* self,
+  Serial_CCSDS_SamV71_Conf_T_bits bits) {
   (void)self;
   if (bits != 8) {
     assert("Not supported number of data bits");
   }
 }
 static inline void SamV71SerialCcsdsInit_uart_parity(
-    samv71_serial_ccsds_private_data *self,
-    Serial_CCSDS_SamV71_Conf_T_use_paritybit useParity,
-    Serial_CCSDS_SamV71_Parity_T parity) {
+  samv71_serial_ccsds_private_data* self,
+  Serial_CCSDS_SamV71_Conf_T_use_paritybit useParity,
+  Serial_CCSDS_SamV71_Parity_T parity) {
   if (useParity) {
     switch (parity) {
     case odd:
@@ -74,13 +75,14 @@ static inline void SamV71SerialCcsdsInit_uart_parity(
     default:
       assert("Not supported parity");
     }
-  } else {
+  }
+  else {
     self->m_hal_uart_config.parity = Uart_Parity_None;
   }
 }
 static inline void
-SamV71SerialCcsdsInit_uart_baudrate(samv71_serial_ccsds_private_data *self,
-                                    Serial_CCSDS_SamV71_Baudrate_T speed) {
+SamV71SerialCcsdsInit_uart_baudrate(samv71_serial_ccsds_private_data* self,
+  Serial_CCSDS_SamV71_Baudrate_T speed) {
 
   switch (speed) {
   case b9600:
@@ -108,88 +110,89 @@ SamV71SerialCcsdsInit_uart_baudrate(samv71_serial_ccsds_private_data *self,
 }
 
 static inline void SamV71SerialCcsdsInit_uart_init(
-    samv71_serial_ccsds_private_data *const self,
-    const Serial_CCSDS_SamV71_Conf_T *const device_configuration) {
+  samv71_serial_ccsds_private_data* const self,
+  const Serial_CCSDS_SamV71_Conf_T* const device_configuration) {
   SamV71SerialCcsdsInit_uart_register(self);
   SamV71SerialCcsdsInit_uart_data_bits(self, device_configuration->bits);
   SamV71SerialCcsdsInit_uart_parity(self, device_configuration->use_paritybit,
-                                    device_configuration->parity);
+    device_configuration->parity);
   SamV71SerialCcsdsInit_uart_baudrate(self, device_configuration->speed);
 
   Hal_uart_init(&self->m_hal_uart, self->m_hal_uart_config);
 }
 
-void UartRxCallback(void *private_data) {
-  samv71_serial_ccsds_private_data *self =
-      (samv71_serial_ccsds_private_data *)private_data;
+void UartRxCallback(void* private_data) {
+  samv71_serial_ccsds_private_data* self =
+    (samv71_serial_ccsds_private_data*)private_data;
 
   xSemaphoreGiveFromISR(self->m_rx_semaphore, NULL);
 }
-ByteFifo *UartTxCallback(void *private_data) {
-  samv71_serial_ccsds_private_data *self =
-      (samv71_serial_ccsds_private_data *)private_data;
+ByteFifo* UartTxCallback(void* private_data) {
+  samv71_serial_ccsds_private_data* self =
+    (samv71_serial_ccsds_private_data*)private_data;
 
   xSemaphoreGiveFromISR(self->m_tx_semaphore, NULL);
   return NULL;
 }
 
 static inline void
-SamV71SerialCcsdsInit_rx_handler(samv71_serial_ccsds_private_data *const self) {
+SamV71SerialCcsdsInit_rx_handler(samv71_serial_ccsds_private_data* const self) {
   self->m_uart_rx_handler.characterCallback = UartRxCallback;
   self->m_uart_rx_handler.lengthCallback = UartRxCallback;
   self->m_uart_rx_handler.lengthArg = self;
   self->m_uart_rx_handler.characterArg = self;
   self->m_uart_rx_handler.targetCharacter = ESCAPE_BYTE;
   self->m_uart_rx_handler.targetLength = Serial_CCSDS_SAMV71_RECV_BUFFER_SIZE;
-  vSemaphoreCreateBinary(self->m_rx_semaphore);
+  self->m_rx_semaphore = xSemaphoreCreateBinary();
   xSemaphoreGive(self->m_rx_semaphore);
 }
 
 static inline void
-SamV71SerialCcsdsInit_tx_handler(samv71_serial_ccsds_private_data *const self) {
+SamV71SerialCcsdsInit_tx_handler(samv71_serial_ccsds_private_data* const self) {
   self->m_uart_tx_handler.callback = UartTxCallback;
   self->m_uart_tx_handler.arg = self;
-  vSemaphoreCreateBinary(self->m_tx_semaphore);
+  self->m_tx_semaphore = xSemaphoreCreateBinary();
   xSemaphoreGive(self->m_tx_semaphore);
 }
 
 void SamV71SerialCcsdsInit(
-    void *private_data, const enum SystemBus bus_id,
-    const enum SystemDevice device_id,
-    const Serial_CCSDS_SamV71_Conf_T *const device_configuration,
-    const Serial_CCSDS_SamV71_Conf_T *const remote_device_configuration) {
+  void* private_data, const enum SystemBus bus_id,
+  const enum SystemDevice device_id,
+  const Serial_CCSDS_SamV71_Conf_T* const device_configuration,
+  const Serial_CCSDS_SamV71_Conf_T* const remote_device_configuration) {
 
   (void)bus_id;
   (void)device_id;
   (void)remote_device_configuration;
 
-  samv71_serial_ccsds_private_data *self =
-      (samv71_serial_ccsds_private_data *)private_data;
+  samv71_serial_ccsds_private_data* self =
+    (samv71_serial_ccsds_private_data*)private_data;
 
   SamV71SerialCcsdsInit_uart_init(self, device_configuration);
   SamV71SerialCcsdsInit_rx_handler(self);
   SamV71SerialCcsdsInit_tx_handler(self);
   Escaper_init(&self->m_escaper, self->m_encoded_packet_buffer,
-               Serial_CCSDS_SAMV71_ENCODED_PACKET_BUFFER_SIZE,
-               self->m_decoded_packet_buffer,
-               Serial_CCSDS_SAMV71_DECODED_PACKET_BUFFER_SIZE);
+    Serial_CCSDS_SAMV71_ENCODED_PACKET_BUFFER_SIZE,
+    self->m_decoded_packet_buffer,
+    Serial_CCSDS_SAMV71_DECODED_PACKET_BUFFER_SIZE);
 
   xTaskCreate(SamV71SerialCcsdsPoll, device_configuration->devname,
-              DRIVER_TASK_STACK_SIZE, self, DRIVER_TASK_PRIORITY,
-              &self->m_task);
+    DRIVER_TASK_STACK_SIZE, self, DRIVER_TASK_PRIORITY,
+    &self->m_task);
 }
 
-void SamV71SerialCcsdsPoll(void *private_data) {
-  samv71_serial_ccsds_private_data *self =
-      (samv71_serial_ccsds_private_data *)private_data;
-
+void SamV71SerialCcsdsPoll(void* private_data) {
+  samv71_serial_ccsds_private_data* self =
+    (samv71_serial_ccsds_private_data*)private_data;
   size_t length = 0;
 
   Escaper_start_decoder(&self->m_escaper);
+  xSemaphoreTake(self->m_rx_semaphore, portMAX_DELAY);
   Hal_uart_read(&self->m_hal_uart, self->m_recv_buffer,
-                Serial_CCSDS_SAMV71_RECV_BUFFER_SIZE, self->m_uart_rx_handler);
+    Serial_CCSDS_SAMV71_RECV_BUFFER_SIZE, self->m_uart_rx_handler);
 
   while (1) {
+    /// Wait for data to arrive. Semaphore will be given
     xSemaphoreTake(self->m_rx_semaphore, portMAX_DELAY);
     length = ByteFifo_getCount(&self->m_hal_uart.rxFifo);
     if (length > 0) {
@@ -197,17 +200,18 @@ void SamV71SerialCcsdsPoll(void *private_data) {
         ByteFifo_pull(&self->m_hal_uart.rxFifo, self->m_recv_buffer);
       }
       Escaper_decode_packet(&self->m_escaper, self->m_recv_buffer, length,
-                            Broker_receive_packet);
-    } else {
+        Broker_receive_packet);
+    }
+    else {
       return;
     }
   }
 }
 
-void SamV71SerialCcsdsSend(void *private_data, const uint8_t *const data,
-                           const size_t length) {
-  samv71_serial_ccsds_private_data *self =
-      (samv71_serial_ccsds_private_data *)private_data;
+void SamV71SerialCcsdsSend(void* private_data, const uint8_t* const data,
+  const size_t length) {
+  samv71_serial_ccsds_private_data* self =
+    (samv71_serial_ccsds_private_data*)private_data;
 
   size_t index = 0;
   size_t packetLength = 0;
@@ -215,9 +219,9 @@ void SamV71SerialCcsdsSend(void *private_data, const uint8_t *const data,
   Escaper_start_encoder(&self->m_escaper);
   while (index < length) {
     packetLength =
-        Escaper_encode_packet(&self->m_escaper, data, length, &index);
-    Hal_uart_write(&self->m_hal_uart, data, packetLength,
-                   self->m_uart_tx_handler);
+      Escaper_encode_packet(&self->m_escaper, data, length, &index);
     xSemaphoreTake(self->m_tx_semaphore, portMAX_DELAY);
+    Hal_uart_write(&self->m_hal_uart, data, packetLength,
+      self->m_uart_tx_handler);
   }
 }
