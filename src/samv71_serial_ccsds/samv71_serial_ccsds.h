@@ -42,9 +42,10 @@
 #include <semphr.h>
 #include <task.h>
 
+#define Serial_CCSDS_SAMV71_FIFO_BUFFER_SIZE 127
 #define Serial_CCSDS_SAMV71_RECV_BUFFER_SIZE 127
-#define Serial_CCSDS_SAMV71_ENCODED_PACKET_BUFFER_SIZE 127
-#define Serial_CCSDS_SAMV71_DECODED_PACKET_BUFFER_SIZE BROKER_BUFFER_SIZE
+#define Serial_CCSDS_SAMV71_ENCODED_PACKET_MAX_SIZE 127
+#define Serial_CCSDS_SAMV71_DECODED_PACKET_MAX_SIZE BROKER_BUFFER_SIZE
 
 /**
  * @brief Structure for driver internal data
@@ -57,11 +58,11 @@ typedef struct final {
   Serial_CCSDS_SamV71_Device_T m_device;
   Hal_Uart m_hal_uart;
   Hal_Uart_Config m_hal_uart_config;
+
+  uint8_t m_fifo_memory_block[Serial_CCSDS_SAMV71_FIFO_BUFFER_SIZE];
   uint8_t m_recv_buffer[Serial_CCSDS_SAMV71_RECV_BUFFER_SIZE];
-  uint8_t
-      m_encoded_packet_buffer[Serial_CCSDS_SAMV71_ENCODED_PACKET_BUFFER_SIZE];
-  uint8_t
-      m_decoded_packet_buffer[Serial_CCSDS_SAMV71_DECODED_PACKET_BUFFER_SIZE];
+  uint8_t m_encoded_packet_buffer[Serial_CCSDS_SAMV71_ENCODED_PACKET_MAX_SIZE];
+  uint8_t m_decoded_packet_buffer[Serial_CCSDS_SAMV71_DECODED_PACKET_MAX_SIZE];
   Escaper m_escaper;
   TaskHandle_t m_task;
 
