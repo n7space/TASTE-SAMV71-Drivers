@@ -23,12 +23,22 @@
 #include <Hal/Hal.h>
 #include <Init/Init.h>
 
+#include <Packetizer.h>
+
+#include <string.h>
+
 #include <samv71_serial_ccsds/samv71_serial_ccsds.h>
 
 #define NUMBER_OF_DEVICES 1
 #define TASK1_PIORITY 1
 #define TASK1_DELAY (100 / portTICK_PERIOD_MS)
-#define TASK1_MSG "Hello from task1\n\r"
+#define TASK1_MSG "Hi rPi\n\r"
+
+#define PACKET_SIZE1                                                           \
+  (sizeof(TASK1_MSG) + SPACE_PACKET_PRIMARY_HEADER_SIZE +                      \
+   SPACE_PACKET_ERROR_CONTROL_SIZE)
+
+#define START_MSG "Test started\n\r"
 
 samv71_serial_ccsds_private_data serial = {.m_device = uart4};
 
@@ -41,12 +51,10 @@ void vApplicationTickHook();
 
 void device1_interface_deliver_function(const uint8_t *const data,
                                         const size_t data_size) {
-  (void)data;
-  (void)data_size;
-  // todo implement sending back received data
+  Hal_console_usart_write(data, data_size);
 }
 
-void UART4_Handler(void) { Uart_handleInterrupt(&serial.m_hal_uart); }
+void UART4_Handler(void) { Uart_handleInterrupt(&serial.m_hal_uart.uart); }
 
 void *bus_to_driver_private_data[NUMBER_OF_DEVICES];
 void *bus_to_driver_send_function[NUMBER_OF_DEVICES];
@@ -54,7 +62,10 @@ void *interface_to_deliver_function[NUMBER_OF_DEVICES] = {
     (void *)(device1_interface_deliver_function)};
 
 int main(void) {
+
   Init_setup_hardware();
+
+  Hal_console_usart_write(START_MSG, sizeof(START_MSG));
 
   Serial_CCSDS_SamV71_Conf_T device = {
       .devname = "device",
@@ -97,11 +108,19 @@ static void prvTask1(void *pvParameters) {
   samv71_serial_ccsds_private_data *self =
       (samv71_serial_ccsds_private_data *)pvParameters;
 
+  Packetizer packetizer;
+  uint8_t packetData[PACKET_SIZE1];
+  memcpy(&packetData[SPACE_PACKET_PRIMARY_HEADER_SIZE], TASK1_MSG,
+         sizeof(TASK1_MSG));
   /* Initialise xNextWakeTime - this only needs to be done once. */
   xNextWakeTime = xTaskGetTickCount();
+  Packetizer_init(&packetizer);
+  Packetizer_packetize(&packetizer, Packetizer_PacketType_Telemetry, 0, 0,
+                       packetData, SPACE_PACKET_PRIMARY_HEADER_SIZE,
+                       sizeof(TASK1_MSG));
 
   for (;;) {
     vTaskDelay(TASK1_DELAY);
-    SamV71SerialCcsdsSend(self, TASK1_MSG, sizeof(TASK1_MSG));
+    SamV71SerialCcsdsSend(self, packetData, PACKET_SIZE1);
   }
 }
