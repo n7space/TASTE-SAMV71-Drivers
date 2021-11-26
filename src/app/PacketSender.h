@@ -24,6 +24,11 @@
 #define PACKET_SENDER_H
 
 /**
+ * @file     PacketSender.h
+ * @brief    Part of samv71_serial_ccsds driver demo.
+ */
+
+/**
  * @brief   Thread method. Initializes and sends packages
  *
  * Pointer to this function should be pass as xTaskCreate TaskFunciton_t
@@ -33,6 +38,6 @@
  * @param[in]   arg            Pointer to private data passed to the thread
  * method
  */
-void SendPacket(void *arg);
+void SendPacket(void* arg);
 
 #endif
