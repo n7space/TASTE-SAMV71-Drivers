@@ -26,8 +26,13 @@
 #include <samv71_serial_ccsds/samv71_serial_ccsds.h>
 
 #define NUMBER_OF_DEVICES 1
+#define TASK1_PIORITY 1
+#define TASK1_DELAY (100 / portTICK_PERIOD_MS)
+#define TASK1_MSG "Hello from task1\n\r"
 
-Hal_Uart halUart;
+samv71_serial_ccsds_private_data serial = {.m_device = uart4};
+
+static void prvTask1(void *pvParameters);
 
 void vApplicationMallocFailedHook();
 void vApplicationStackOverflowHook(TaskHandle_t pxTask, char *pcTaskName);
@@ -41,6 +46,8 @@ void device1_interface_deliver_function(const uint8_t *const data,
   // todo implement sending back received data
 }
 
+void UART4_Handler(void) { Uart_handleInterrupt(&serial.m_hal_uart); }
+
 void *bus_to_driver_private_data[NUMBER_OF_DEVICES];
 void *bus_to_driver_send_function[NUMBER_OF_DEVICES];
 void *interface_to_deliver_function[NUMBER_OF_DEVICES] = {
@@ -49,7 +56,6 @@ void *interface_to_deliver_function[NUMBER_OF_DEVICES] = {
 int main(void) {
   Init_setup_hardware();
 
-  samv71_serial_ccsds_private_data serial = {.m_device = uart4};
   Serial_CCSDS_SamV71_Conf_T device = {
       .devname = "device",
       .speed = b38400,
@@ -57,10 +63,16 @@ int main(void) {
       .bits = 8,
       .use_paritybit = 0,
   };
+
   SamV71SerialCcsdsInit(&serial, BUS_INVALID_ID, DEVICE_INVALID_ID, &device,
                         NULL);
+  xTaskCreate(prvTask1, "Task1", configMINIMAL_STACK_SIZE, &serial,
+              TASK1_PIORITY, NULL);
+
   vTaskStartScheduler();
 
+  for (;;) {
+  }
   return 0;
 }
 
@@ -79,3 +91,17 @@ void vApplicationIdleHook() {
 }
 
 void vApplicationTickHook() {}
+
+static void prvTask1(void *pvParameters) {
+  TickType_t xNextWakeTime;
+  samv71_serial_ccsds_private_data *self =
+      (samv71_serial_ccsds_private_data *)pvParameters;
+
+  /* Initialise xNextWakeTime - this only needs to be done once. */
+  xNextWakeTime = xTaskGetTickCount();
+
+  for (;;) {
+    vTaskDelay(TASK1_DELAY);
+    SamV71SerialCcsdsSend(self, TASK1_MSG, sizeof(TASK1_MSG));
+  }
+}
