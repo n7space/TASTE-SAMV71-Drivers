@@ -25,25 +25,15 @@
 
 #include <Packetizer.h>
 
-#include <string.h>
-
+#include <PacketSender.h>
 #include <samv71_serial_ccsds/samv71_serial_ccsds.h>
 
 #define NUMBER_OF_DEVICES 1
 #define TASK1_PIORITY 1
-#define TASK1_DELAY (100 / portTICK_PERIOD_MS)
-#define TASK1_MSG "Hi rPi\n\r"
-
-#define PACKET_SIZE1                                                           \
-  (sizeof(TASK1_MSG) + SPACE_PACKET_PRIMARY_HEADER_SIZE +                      \
-   SPACE_PACKET_ERROR_CONTROL_SIZE)
-
-#define START_MSG "Test started\n\r"
 
 samv71_serial_ccsds_private_data serial = {.m_device = uart4};
 
 static void prvTask1(void *pvParameters);
-
 void vApplicationMallocFailedHook();
 void vApplicationStackOverflowHook(TaskHandle_t pxTask, char *pcTaskName);
 void vApplicationIdleHook();
@@ -65,8 +55,6 @@ int main(void) {
 
   Init_setup_hardware();
 
-  Hal_console_usart_write(START_MSG, sizeof(START_MSG));
-
   Serial_CCSDS_SamV71_Conf_T device = {
       .devname = "device",
       .speed = b38400,
@@ -77,7 +65,7 @@ int main(void) {
 
   SamV71SerialCcsdsInit(&serial, BUS_INVALID_ID, DEVICE_INVALID_ID, &device,
                         NULL);
-  xTaskCreate(prvTask1, "Task1", configMINIMAL_STACK_SIZE, &serial,
+  xTaskCreate(SendPacket, "Task1", configMINIMAL_STACK_SIZE, &serial,
               TASK1_PIORITY, NULL);
 
   vTaskStartScheduler();
@@ -102,25 +90,3 @@ void vApplicationIdleHook() {
 }
 
 void vApplicationTickHook() {}
-
-static void prvTask1(void *pvParameters) {
-  TickType_t xNextWakeTime;
-  samv71_serial_ccsds_private_data *self =
-      (samv71_serial_ccsds_private_data *)pvParameters;
-
-  Packetizer packetizer;
-  uint8_t packetData[PACKET_SIZE1];
-  memcpy(&packetData[SPACE_PACKET_PRIMARY_HEADER_SIZE], TASK1_MSG,
-         sizeof(TASK1_MSG));
-  /* Initialise xNextWakeTime - this only needs to be done once. */
-  xNextWakeTime = xTaskGetTickCount();
-  Packetizer_init(&packetizer);
-  Packetizer_packetize(&packetizer, Packetizer_PacketType_Telemetry, 0, 0,
-                       packetData, SPACE_PACKET_PRIMARY_HEADER_SIZE,
-                       sizeof(TASK1_MSG));
-
-  for (;;) {
-    vTaskDelay(TASK1_DELAY);
-    SamV71SerialCcsdsSend(self, packetData, PACKET_SIZE1);
-  }
-}

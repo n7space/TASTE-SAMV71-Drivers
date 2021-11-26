@@ -1,6 +1,9 @@
 add_executable(Samv71Demo)
 target_sources(Samv71Demo
-    PRIVATE     main.c)
+    PRIVATE     main.c
+                PacketSender.c
+    PUBLIC      PacketSender.h)
+
 target_include_directories(Samv71Demo
     PRIVATE     ${CMAKE_SOURCE_DIR}/TASTE-SAMV71-Runtime/src
                 ${CMAKE_SOURCE_DIR}/TASTE-SAMV71-Runtime/src/BrokerLock/
@@ -9,7 +12,8 @@ target_include_directories(Samv71Demo
                 ${CMAKE_SOURCE_DIR}/TASTE-Runtime-Common/src/Escaper
                 ${CMAKE_SOURCE_DIR}/TASTE-Runtime-Common/src/Broker
                 ${CMAKE_SOURCE_DIR}/TASTE-Runtime-Common/src/Packetizer
-                ${CMAKE_SOURCE_DIR}/TASTE-Runtime-Common/src/RuntimeMocks)
+                ${CMAKE_SOURCE_DIR}/TASTE-Runtime-Common/src/RuntimeMocks
+                ${CMAKE_CURRENT_SOURCE_DIR})
 
 target_link_libraries(Samv71Demo
     PRIVATE     SAMV71::Runtime::Hal
