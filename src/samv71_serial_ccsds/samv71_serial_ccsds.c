@@ -49,6 +49,7 @@ SamV71SerialCcsdsInit_uart_register(samv71_serial_ccsds_private_data *self) {
     assert("Not supported device name");
   }
 }
+
 static inline void
 SamV71SerialCcsdsInit_uart_data_bits(samv71_serial_ccsds_private_data *self,
                                      Serial_CCSDS_SamV71_Conf_T_bits bits) {
@@ -57,6 +58,7 @@ SamV71SerialCcsdsInit_uart_data_bits(samv71_serial_ccsds_private_data *self,
     assert("Not supported number of data bits");
   }
 }
+
 static inline void SamV71SerialCcsdsInit_uart_parity(
     samv71_serial_ccsds_private_data *self,
     Serial_CCSDS_SamV71_Conf_T_use_paritybit useParity,
@@ -76,6 +78,7 @@ static inline void SamV71SerialCcsdsInit_uart_parity(
     self->m_hal_uart_config.parity = Uart_Parity_None;
   }
 }
+
 static inline void
 SamV71SerialCcsdsInit_uart_baudrate(samv71_serial_ccsds_private_data *self,
                                     Serial_CCSDS_SamV71_Baudrate_T speed) {
@@ -123,6 +126,7 @@ void UartRxCallback(void *private_data) {
 
   xSemaphoreGiveFromISR(self->m_rx_semaphore, NULL);
 }
+
 ByteFifo *UartTxCallback(void *private_data) {
   samv71_serial_ccsds_private_data *self =
       (samv71_serial_ccsds_private_data *)private_data;
@@ -156,7 +160,6 @@ void SamV71SerialCcsdsInit(
     const enum SystemDevice device_id,
     const Serial_CCSDS_SamV71_Conf_T *const device_configuration,
     const Serial_CCSDS_SamV71_Conf_T *const remote_device_configuration) {
-
   (void)bus_id;
   (void)device_id;
   (void)remote_device_configuration;
@@ -198,7 +201,6 @@ void SamV71SerialCcsdsPoll(void *private_data) {
       Escaper_decode_packet(&self->m_escaper, self->m_recv_buffer, length,
                             Broker_receive_packet);
     } else {
-      Hal_console_usart_write((uint8_t *)"Read error\n\r", 13);
       return;
     }
   }
