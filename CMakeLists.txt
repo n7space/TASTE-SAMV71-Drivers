@@ -24,10 +24,11 @@ option(TASTE_SAMV71_DRIVERS_WARNINGS_AS_ERRORS
 
 if(TASTE_SAMV71_DRIVERS_WARNINGS_AS_ERRORS)
     log_option_enabled("warnings as errors")
-    set(CLANG_WARNINGS ${CLANG_WARNINGS} -Werror)
+    set(CLANG_WARNINGS -Werror)
 endif()
 
-set(CLANG_WARNINGS -Wall
+set(CLANG_WARNINGS ${CLANG_WARNINGS}
+                   -Wall
                    -Wextra
                    -Wpedantic
                    -Wshadow
@@ -44,11 +45,13 @@ set(GCC_WARNINGS ${CLANG_WARNINGS}
                  -Wduplicated-branches
                  -Wlogical-op)
 
+log_info(${CMAKE_C_COMPILER_ID})
+
 if(CMAKE_C_COMPILER_ID STREQUAL "Clang")
     set(PROJECT_WARNINGS ${CLANG_WARNINGS})
-  elseif(CMAKE_C_COMPILER_ID STREQUAL "GNU")
+elseif(CMAKE_C_COMPILER_ID STREQUAL "GNU")
     set(PROJECT_WARNINGS ${GCC_WARNINGS})
-  endif()
+endif()
 
 target_compile_options(common_build_options INTERFACE ${PROJECT_WARNINGS})
 
