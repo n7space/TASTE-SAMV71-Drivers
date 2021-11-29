@@ -46,7 +46,7 @@ SamV71SerialCcsdsInit_uart_register(samv71_serial_ccsds_private_data *self) {
     self->m_hal_uart_config.id = Uart_Id_4;
     break;
   default:
-    assert("Not supported device name");
+    assert((self->m_device <= uart4) && "Not supported device name");
   }
 }
 
@@ -55,7 +55,7 @@ SamV71SerialCcsdsInit_uart_data_bits(samv71_serial_ccsds_private_data *self,
                                      Serial_CCSDS_SamV71_Conf_T_bits bits) {
   (void)self;
   if (bits != 8) {
-    assert("Not supported number of data bits");
+    assert((bits == 8) && "Not supported number of data bits");
   }
 }
 
@@ -72,7 +72,7 @@ static inline void SamV71SerialCcsdsInit_uart_parity(
       self->m_hal_uart_config.parity = Uart_Parity_Even;
       break;
     default:
-      assert("Not supported parity");
+      assert((parity <= odd) && "Not supported parity");
     }
   } else {
     self->m_hal_uart_config.parity = Uart_Parity_None;
@@ -103,7 +103,7 @@ SamV71SerialCcsdsInit_uart_baudrate(samv71_serial_ccsds_private_data *self,
     self->m_hal_uart_config.baudrate = 230400;
     break;
   default:
-    assert("Not supported baudrate");
+    assert((speed <= b230400) && "Not supported baudrate");
     break;
   }
 }
@@ -219,7 +219,8 @@ void SamV71SerialCcsdsSend(void *private_data, const uint8_t *const data,
     packetLength =
         Escaper_encode_packet(&self->m_escaper, data, length, &index);
     xSemaphoreTake(self->m_tx_semaphore, portMAX_DELAY);
-    Hal_uart_write(&self->m_hal_uart, &self->m_encoded_packet_buffer,
+    Hal_uart_write(&self->m_hal_uart,
+                   (uint8_t *const) & self->m_encoded_packet_buffer,
                    packetLength, self->m_uart_tx_handler);
   }
 }
