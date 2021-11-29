@@ -18,11 +18,11 @@ add_library(common_build_options INTERFACE)
 include(CommonBuildOptions)
 include(Sanitizers)
 
-option(TASTE_RUNTIME_COMMON_WARNINGS_AS_ERRORS
-       "Treat compiler wargnings as errors"
+option(TASTE_SAMV71_DRIVERS_WARNINGS_AS_ERRORS
+       "Treat compiler warnings as errors"
        TRUE)
 
-if(OPTIONS_WARNINGS_AS_ERRORS)
+if(TASTE_SAMV71_DRIVERS_WARNINGS_AS_ERRORS)
     log_option_enabled("warnings as errors")
     set(CLANG_WARNINGS ${CLANG_WARNINGS} -Werror)
 endif()
@@ -50,7 +50,7 @@ if(CMAKE_C_COMPILER_ID STREQUAL "Clang")
     set(PROJECT_WARNINGS ${GCC_WARNINGS})
   endif()
 
-  target_compile_options(common_build_options INTERFACE ${PROJECT_WARNINGS})
+target_compile_options(common_build_options INTERFACE ${PROJECT_WARNINGS})
 
 add_library(bsp_build_options INTERFACE)
 target_compile_definitions(bsp_build_options
