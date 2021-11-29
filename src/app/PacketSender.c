@@ -33,28 +33,28 @@
   (sizeof(TASK_MSG) + SPACE_PACKET_PRIMARY_HEADER_SIZE +                       \
    SPACE_PACKET_ERROR_CONTROL_SIZE)
 
-inline static void CreatePacket(Packetizer* packetizer,
-  uint8_t* const packetData) {
+inline static void CreatePacket(Packetizer *packetizer,
+                                uint8_t *const packetData) {
   memcpy(&packetData[SPACE_PACKET_PRIMARY_HEADER_SIZE], TASK_MSG,
-    sizeof(TASK_MSG));
+         sizeof(TASK_MSG));
   Packetizer_init(packetizer);
   Packetizer_packetize(packetizer, Packetizer_PacketType_Telemetry, 0, 0,
-    packetData, SPACE_PACKET_PRIMARY_HEADER_SIZE,
-    sizeof(TASK_MSG));
+                       packetData, SPACE_PACKET_PRIMARY_HEADER_SIZE,
+                       sizeof(TASK_MSG));
 }
 
-void SendPacket(void* args) {
+void SendPacket(void *args) {
   TickType_t xNextWakeTime;
   Packetizer packetizer;
-  samv71_serial_ccsds_private_data* self =
-    (samv71_serial_ccsds_private_data*)args;
-  uint8_t packetData[PACKET_SIZE] = {};
+  samv71_serial_ccsds_private_data *self =
+      (samv71_serial_ccsds_private_data *)args;
+  uint8_t packetData[PACKET_SIZE] = {0};
 
   /* Initialise packet to be sent*/
   CreatePacket(&packetizer, packetData);
   /* Initialise xNextWakeTime - this only needs to be done once. */
   xNextWakeTime = xTaskGetTickCount();
-
+  (void)xNextWakeTime;
   for (;;) {
     vTaskDelay(TASK_DELAY);
     SamV71SerialCcsdsSend(self, packetData, PACKET_SIZE);
