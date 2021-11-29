@@ -60,4 +60,3 @@ void SendPacket(void* args) {
     SamV71SerialCcsdsSend(self, packetData, PACKET_SIZE);
   }
 }
-~
