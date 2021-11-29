@@ -33,7 +33,6 @@
 
 samv71_serial_ccsds_private_data serial = {.m_device = uart4};
 
-static void prvTask1(void *pvParameters);
 void vApplicationMallocFailedHook();
 void vApplicationStackOverflowHook(TaskHandle_t pxTask, char *pcTaskName);
 void vApplicationIdleHook();
@@ -48,8 +47,8 @@ void UART4_Handler(void) { Uart_handleInterrupt(&serial.m_hal_uart.uart); }
 
 void *bus_to_driver_private_data[NUMBER_OF_DEVICES];
 void *bus_to_driver_send_function[NUMBER_OF_DEVICES];
-void *interface_to_deliver_function[NUMBER_OF_DEVICES] = {
-    (void *)(device1_interface_deliver_function)};
+deliver_function interface_to_deliver_function[NUMBER_OF_DEVICES] = {
+    device1_interface_deliver_function};
 
 int main(void) {
 
