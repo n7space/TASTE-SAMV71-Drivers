@@ -5,18 +5,12 @@ target_sources(Samv71Demo
     PUBLIC      PacketSender.h)
 
 target_include_directories(Samv71Demo
-    PRIVATE     ${CMAKE_SOURCE_DIR}/TASTE-SAMV71-Runtime/src
-                ${CMAKE_SOURCE_DIR}/TASTE-SAMV71-Runtime/src/BrokerLock/
-                ${CMAKE_SOURCE_DIR}/src/RuntimeMocks
-                ${CMAKE_SOURCE_DIR}/src
-                ${CMAKE_SOURCE_DIR}/TASTE-Runtime-Common/src/Escaper
-                ${CMAKE_SOURCE_DIR}/TASTE-Runtime-Common/src/Broker
-                ${CMAKE_SOURCE_DIR}/TASTE-Runtime-Common/src/Packetizer
-                ${CMAKE_SOURCE_DIR}/TASTE-Runtime-Common/src/RuntimeMocks
+    PRIVATE     ${CMAKE_SOURCE_DIR}/src
                 ${CMAKE_CURRENT_SOURCE_DIR})
 
 target_link_libraries(Samv71Demo
-    PRIVATE     SAMV71::Runtime::Hal
+    PRIVATE     common_build_options
+                SAMV71::Runtime::Hal
                 SAMV71::Runtime::Init
                 SAMV71::FreeRTOS
                 TASTE::SamV71SerialCcsds
