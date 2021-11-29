@@ -46,7 +46,7 @@ SamV71SerialCcsdsInit_uart_register(samv71_serial_ccsds_private_data *self) {
     self->m_hal_uart_config.id = Uart_Id_4;
     break;
   default:
-    assert((self->m_device <= uart4) && "Not supported device name");
+    assert(false && "Not supported device name");
   }
 }
 
@@ -54,9 +54,7 @@ static inline void
 SamV71SerialCcsdsInit_uart_data_bits(samv71_serial_ccsds_private_data *self,
                                      Serial_CCSDS_SamV71_Conf_T_bits bits) {
   (void)self;
-  if (bits != 8) {
-    assert((bits == 8) && "Not supported number of data bits");
-  }
+  assert((bits == 8) && "Not supported number of data bits");
 }
 
 static inline void SamV71SerialCcsdsInit_uart_parity(
@@ -72,7 +70,7 @@ static inline void SamV71SerialCcsdsInit_uart_parity(
       self->m_hal_uart_config.parity = Uart_Parity_Even;
       break;
     default:
-      assert((parity <= odd) && "Not supported parity");
+      assert(false && "Not supported parity");
     }
   } else {
     self->m_hal_uart_config.parity = Uart_Parity_None;
@@ -103,7 +101,7 @@ SamV71SerialCcsdsInit_uart_baudrate(samv71_serial_ccsds_private_data *self,
     self->m_hal_uart_config.baudrate = 230400;
     break;
   default:
-    assert((speed <= b230400) && "Not supported baudrate");
+    assert(false && "Not supported baudrate");
     break;
   }
 }
@@ -194,14 +192,14 @@ void SamV71SerialCcsdsPoll(void *private_data) {
     /// Wait for data to arrive. Semaphore will be given
     xSemaphoreTake(self->m_rx_semaphore, portMAX_DELAY);
     length = ByteFifo_getCount(&self->m_hal_uart.rxFifo);
-    if (length > 0) {
+    if (length <= 0) {
+      return;
+    } else {
       for (size_t i = 0; i < length; i++) {
         ByteFifo_pull(&self->m_hal_uart.rxFifo, &self->m_recv_buffer[i]);
       }
       Escaper_decode_packet(&self->m_escaper, self->m_recv_buffer, length,
                             Broker_receive_packet);
-    } else {
-      return;
     }
   }
 }
