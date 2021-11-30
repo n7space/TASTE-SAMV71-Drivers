@@ -118,14 +118,14 @@ static inline void SamV71SerialCcsdsInit_uart_init(
   Hal_uart_init(&self->m_hal_uart, self->m_hal_uart_config);
 }
 
-void UartRxCallback(void *private_data) {
+static void UartRxCallback(void *private_data) {
   samv71_serial_ccsds_private_data *self =
       (samv71_serial_ccsds_private_data *)private_data;
 
   xSemaphoreGiveFromISR(self->m_rx_semaphore, NULL);
 }
 
-ByteFifo *UartTxCallback(void *private_data) {
+static ByteFifo *UartTxCallback(void *private_data) {
   samv71_serial_ccsds_private_data *self =
       (samv71_serial_ccsds_private_data *)private_data;
 
