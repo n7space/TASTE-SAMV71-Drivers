@@ -43,8 +43,16 @@ inline static void CreatePacket(Packetizer *packetizer,
                        sizeof(TASK_MSG));
 }
 
+inline static void DelayNonBlocking(TickType_t *const xWakeTime,
+                                    const TickType_t delayTimeMs) {
+  while ((xTaskGetTickCount() - *xWakeTime) < delayTimeMs) {
+    taskYIELD();
+  }
+  *xWakeTime = xTaskGetTickCount();
+}
+
 void SendPacket(void *args) {
-  TickType_t xNextWakeTime;
+  TickType_t xWakeTime;
   Packetizer packetizer;
   samv71_serial_ccsds_private_data *self =
       (samv71_serial_ccsds_private_data *)args;
@@ -52,11 +60,9 @@ void SendPacket(void *args) {
 
   /* Initialise packet to be sent*/
   CreatePacket(&packetizer, packetData);
-  /* Initialise xNextWakeTime - this only needs to be done once. */
-  xNextWakeTime = xTaskGetTickCount();
-  (void)xNextWakeTime;
+  xWakeTime = xTaskGetTickCount();
   for (;;) {
-    vTaskDelay(TASK_DELAY);
+    DelayNonBlocking(&xWakeTime, (TickType_t)TASK_DELAY);
     SamV71SerialCcsdsSend(self, packetData, PACKET_SIZE);
   }
 }
