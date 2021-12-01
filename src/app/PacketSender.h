@@ -29,7 +29,7 @@
  */
 
 /**
- * @brief   Thread method. Initializes and sends packages
+ * @brief   Thread method. Initializes and sends packets
  *
  * Pointer to this function should be pass as xTaskCreate TaskFunciton_t
  * argument. This function will create a constant packet and then it will be
