@@ -47,14 +47,13 @@ typedef enum {
     Serial_CCSDS_SamV71_Parity_T_odd = 1
 } Serial_CCSDS_SamV71_Parity_T;
 
-typedef char Serial_CCSDS_SamV71_Conf_T_devname[25];
 typedef asn1SccUint Serial_CCSDS_SamV71_Conf_T_bits;
 
 typedef flag Serial_CCSDS_SamV71_Conf_T_use_paritybit;
 
 typedef struct
 {
-  Serial_CCSDS_SamV71_Conf_T_devname devname;
+  Serial_CCSDS_SamV71_Device_T devname;
   Serial_CCSDS_SamV71_Baudrate_T speed;
   Serial_CCSDS_SamV71_Parity_T parity;
   Serial_CCSDS_SamV71_Conf_T_bits bits;

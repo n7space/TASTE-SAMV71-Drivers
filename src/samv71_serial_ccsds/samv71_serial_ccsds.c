@@ -29,6 +29,34 @@
 
 #define SAMV71_SERIAL_CCSDS_POOL_ERROR "Polling error! Fifo count <= 0."
 
+static inline const char *
+SamV71_device_to_string(const Serial_CCSDS_SamV71_Device_T device) {
+  switch (device) {
+  case uart0: {
+    static const char uart0Name[] = "uart0";
+    return uart0Name;
+  } break;
+  case uart1: {
+    static const char uart1Name[] = "uart1";
+    return uart1Name;
+  } break;
+  case uart2: {
+    static const char uart2Name[] = "uart2";
+    return uart2Name;
+  } break;
+  case uart3: {
+    static const char uart3Name[] = "uart3";
+    return uart3Name;
+  } break;
+  case uart4: {
+    static const char uart4Name[] = "uart4";
+    return uart4Name;
+  } break;
+  default:
+    assert(false && "Not supported device name");
+  }
+}
+
 static inline void
 SamV71SerialCcsdsInit_uart_register(samv71_serial_ccsds_private_data *self) {
   switch (self->m_device) {
@@ -56,6 +84,7 @@ static inline void
 SamV71SerialCcsdsInit_uart_data_bits(samv71_serial_ccsds_private_data *self,
                                      Serial_CCSDS_SamV71_Conf_T_bits bits) {
   (void)self;
+  (void)bits;
   assert((bits == 8) && "Not supported number of data bits");
 }
 
@@ -175,9 +204,10 @@ void SamV71SerialCcsdsInit(
                self->m_decoded_packet_buffer,
                Serial_CCSDS_SAMV71_DECODED_PACKET_MAX_SIZE);
 
-  xTaskCreate(SamV71SerialCcsdsPoll, device_configuration->devname,
-              DRIVER_TASK_STACK_SIZE, self, DRIVER_TASK_PRIORITY,
-              &self->m_task);
+  const char *devname = SamV71_device_to_string(device_configuration->devname);
+
+  xTaskCreate(SamV71SerialCcsdsPoll, devname, DRIVER_TASK_STACK_SIZE, self,
+              DRIVER_TASK_PRIORITY, &self->m_task);
 }
 
 void SamV71SerialCcsdsPoll(void *private_data) {
