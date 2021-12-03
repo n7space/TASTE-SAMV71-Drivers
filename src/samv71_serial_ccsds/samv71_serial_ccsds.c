@@ -65,10 +65,10 @@ static inline void SamV71SerialCcsdsInit_uart_parity(
     Serial_CCSDS_SamV71_Parity_T parity) {
   if (useParity) {
     switch (parity) {
-    case odd:
+    case Serial_CCSDS_SamV71_Parity_T_odd:
       self->m_hal_uart_config.parity = Uart_Parity_Odd;
       break;
-    case even:
+    case Serial_CCSDS_SamV71_Parity_T_even:
       self->m_hal_uart_config.parity = Uart_Parity_Even;
       break;
     default:
@@ -84,22 +84,22 @@ SamV71SerialCcsdsInit_uart_baudrate(samv71_serial_ccsds_private_data *self,
                                     Serial_CCSDS_SamV71_Baudrate_T speed) {
 
   switch (speed) {
-  case b9600:
+  case Serial_CCSDS_SamV71_Baudrate_T_b9600:
     self->m_hal_uart_config.baudrate = 9600;
     break;
-  case b19200:
+  case Serial_CCSDS_SamV71_Baudrate_T_b19200:
     self->m_hal_uart_config.baudrate = 19200;
     break;
-  case b38400:
+  case Serial_CCSDS_SamV71_Baudrate_T_b38400:
     self->m_hal_uart_config.baudrate = 38400;
     break;
-  case b57600:
+  case Serial_CCSDS_SamV71_Baudrate_T_b57600:
     self->m_hal_uart_config.baudrate = 57600;
     break;
-  case b115200:
+  case Serial_CCSDS_SamV71_Baudrate_T_b115200:
     self->m_hal_uart_config.baudrate = 115200;
     break;
-  case b230400:
+  case Serial_CCSDS_SamV71_Baudrate_T_b230400:
     self->m_hal_uart_config.baudrate = 230400;
     break;
   default:
