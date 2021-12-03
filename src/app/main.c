@@ -55,8 +55,8 @@ int main(void) {
   Init_setup_hardware();
 
   Serial_CCSDS_SamV71_Conf_T device = {
-      .devname = "device",
-      .speed = b38400,
+      .devname = uart4,
+      .speed = Serial_CCSDS_SamV71_Baudrate_T_b38400,
       .parity = 0,
       .bits = 8,
       .use_paritybit = 0,
