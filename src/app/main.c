@@ -43,8 +43,6 @@ void device1_interface_deliver_function(const uint8_t *const data,
   Hal_console_usart_write(data, data_size);
 }
 
-void UART4_Handler(void) { Uart_handleInterrupt(&serial.m_hal_uart.uart); }
-
 void *bus_to_driver_private_data[NUMBER_OF_DEVICES];
 void *bus_to_driver_send_function[NUMBER_OF_DEVICES];
 deliver_function interface_to_deliver_function[NUMBER_OF_DEVICES] = {
