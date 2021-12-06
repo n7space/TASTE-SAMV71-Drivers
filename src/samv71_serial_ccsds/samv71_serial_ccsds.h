@@ -66,8 +66,10 @@ typedef struct final {
   TaskHandle_t m_task;
   Uart_RxHandler m_uart_rx_handler;
   SemaphoreHandle_t m_rx_semaphore;
+  StaticSemaphore_t m_rx_semaphore_buffer;
   Uart_TxHandler m_uart_tx_handler;
   SemaphoreHandle_t m_tx_semaphore;
+  StaticSemaphore_t m_tx_semaphore_buffer;
 } samv71_serial_ccsds_private_data;
 
 /**
