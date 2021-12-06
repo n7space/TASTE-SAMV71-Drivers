@@ -29,6 +29,37 @@
 
 #define SAMV71_SERIAL_CCSDS_POOL_ERROR "Polling error! Fifo count <= 0."
 
+Uart *uart0handle;
+Uart *uart1handle;
+Uart *uart2handle;
+Uart *uart3handle;
+Uart *uart4handle;
+
+void UART0_Handler(void) {
+  if (uart0handle != NULL)
+    Uart_handleInterrupt(uart0handle);
+}
+
+void UART1_Handler(void) {
+  if (uart1handle != NULL)
+    Uart_handleInterrupt(uart1handle);
+}
+
+void UART2_Handler(void) {
+  if (uart2handle != NULL)
+    Uart_handleInterrupt(uart2handle);
+}
+
+void UART3_Handler(void) {
+  if (uart3handle != NULL)
+    Uart_handleInterrupt(uart3handle);
+}
+
+void UART4_Handler(void) {
+  if (uart4handle != NULL)
+    Uart_handleInterrupt(uart4handle);
+}
+
 static inline const char *
 SamV71_device_to_string(const Serial_CCSDS_SamV71_Device_T device) {
   switch (device) {
@@ -54,6 +85,7 @@ SamV71_device_to_string(const Serial_CCSDS_SamV71_Device_T device) {
   } break;
   default:
     assert(false && "Not supported device name");
+    return NULL;
   }
 }
 
@@ -74,6 +106,29 @@ SamV71SerialCcsdsInit_uart_register(samv71_serial_ccsds_private_data *self) {
     break;
   case uart4:
     self->m_hal_uart_config.id = Uart_Id_4;
+    break;
+  default:
+    assert(false && "Not supported device name");
+  }
+}
+
+static inline void
+SamV71SerialCcsdsInit_uart_handle(samv71_serial_ccsds_private_data *self) {
+  switch (self->m_device) {
+  case uart0:
+    uart0handle = &self->m_hal_uart.uart;
+    break;
+  case uart1:
+    uart1handle = &self->m_hal_uart.uart;
+    break;
+  case uart2:
+    uart2handle = &self->m_hal_uart.uart;
+    break;
+  case uart3:
+    uart3handle = &self->m_hal_uart.uart;
+    break;
+  case uart4:
+    uart4handle = &self->m_hal_uart.uart;
     break;
   default:
     assert(false && "Not supported device name");
@@ -145,7 +200,7 @@ static inline void SamV71SerialCcsdsInit_uart_init(
   SamV71SerialCcsdsInit_uart_parity(self, device_configuration->use_paritybit,
                                     device_configuration->parity);
   SamV71SerialCcsdsInit_uart_baudrate(self, device_configuration->speed);
-
+  SamV71SerialCcsdsInit_uart_handle(self);
   Hal_uart_init(&self->m_hal_uart, self->m_hal_uart_config);
 }
 
@@ -172,7 +227,8 @@ SamV71SerialCcsdsInit_rx_handler(samv71_serial_ccsds_private_data *const self) {
   self->m_uart_rx_handler.characterArg = self;
   self->m_uart_rx_handler.targetCharacter = STOP_BYTE;
   self->m_uart_rx_handler.targetLength = Serial_CCSDS_SAMV71_RECV_BUFFER_SIZE;
-  self->m_rx_semaphore = xSemaphoreCreateBinaryStatic(&self->m_rx_semaphore_buffer);
+  self->m_rx_semaphore =
+      xSemaphoreCreateBinaryStatic(&self->m_rx_semaphore_buffer);
   xSemaphoreGive(self->m_rx_semaphore);
 }
 
@@ -180,9 +236,9 @@ static inline void
 SamV71SerialCcsdsInit_tx_handler(samv71_serial_ccsds_private_data *const self) {
   self->m_uart_tx_handler.callback = UartTxCallback;
   self->m_uart_tx_handler.arg = self;
-  self->m_tx_semaphore = xSemaphoreCreateBinaryStatic(&self->m_tx_semaphore_buffer);
+  self->m_tx_semaphore =
+      xSemaphoreCreateBinaryStatic(&self->m_tx_semaphore_buffer);
   xSemaphoreGive(self->m_tx_semaphore);
-
 }
 
 void SamV71SerialCcsdsInit(
