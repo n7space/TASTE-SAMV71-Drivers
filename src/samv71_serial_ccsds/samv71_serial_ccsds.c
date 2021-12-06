@@ -90,8 +90,9 @@ SamV71_device_to_string(const Serial_CCSDS_SamV71_Device_T device) {
 }
 
 static inline void
-SamV71SerialCcsdsInit_uart_register(samv71_serial_ccsds_private_data *self) {
-  switch (self->m_device) {
+SamV71SerialCcsdsInit_uart_register(samv71_serial_ccsds_private_data *self,
+                                    Serial_CCSDS_SamV71_Device_T deviceName) {
+  switch (deviceName) {
   case uart0:
     self->m_hal_uart_config.id = Uart_Id_0;
     break;
@@ -195,7 +196,7 @@ SamV71SerialCcsdsInit_uart_baudrate(samv71_serial_ccsds_private_data *self,
 static inline void SamV71SerialCcsdsInit_uart_init(
     samv71_serial_ccsds_private_data *const self,
     const Serial_CCSDS_SamV71_Conf_T *const device_configuration) {
-  SamV71SerialCcsdsInit_uart_register(self);
+  SamV71SerialCcsdsInit_uart_register(self, device_configuration->devname);
   SamV71SerialCcsdsInit_uart_data_bits(self, device_configuration->bits);
   SamV71SerialCcsdsInit_uart_parity(self, device_configuration->use_paritybit,
                                     device_configuration->parity);
