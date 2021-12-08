@@ -28,6 +28,10 @@
 #include <samv71_serial_ccsds_internal.h>
 
 #define SAMV71_SERIAL_CCSDS_POOL_ERROR "Polling error! Fifo count <= 0."
+#define SAMV71_SERIAL_CCSDS_UART_ERROR "UART error!: "
+#define SAMV71_SERIAL_CCSDS_UART_ERROR_OVERRUN "OVERUN ERR"
+#define SAMV71_SERIAL_CCSDS_UART_ERROR_FRAME "FRAME ERR "
+#define SAMV71_SERIAL_CCSDS_UART_ERROR_PARE "PARITY ERR"
 
 Uart *uart0handle;
 Uart *uart1handle;
@@ -226,6 +230,29 @@ static ByteFifo *UartTxCallback(void *private_data) {
   return NULL;
 }
 
+void UartErrCallback(uint32_t errorFlags, void *arg) {
+  (void)arg;
+
+  Hal_console_usart_write((const uint8_t *const)SAMV71_SERIAL_CCSDS_UART_ERROR,
+                          sizeof(SAMV71_SERIAL_CCSDS_UART_ERROR));
+
+  if (errorFlags & UART_SR_OVRE_MASK) {
+    Hal_console_usart_write(
+        (const uint8_t *const)SAMV71_SERIAL_CCSDS_UART_ERROR_OVERRUN,
+        sizeof(SAMV71_SERIAL_CCSDS_UART_ERROR_OVERRUN));
+  }
+  if (errorFlags & UART_SR_FRAME_MASK) {
+    Hal_console_usart_write(
+        (const uint8_t *const)SAMV71_SERIAL_CCSDS_UART_ERROR_FRAME,
+        sizeof(SAMV71_SERIAL_CCSDS_UART_ERROR_FRAME));
+  }
+  if (errorFlags & UART_SR_PARE_MASK) {
+    Hal_console_usart_write(
+        (const uint8_t *const)SAMV71_SERIAL_CCSDS_UART_ERROR_PARE,
+        sizeof(SAMV71_SERIAL_CCSDS_UART_ERROR_PARE));
+  }
+}
+
 static inline void
 SamV71SerialCcsdsInit_rx_handler(samv71_serial_ccsds_private_data *const self) {
   self->m_uart_rx_handler.characterCallback = UartRxCallback;
@@ -248,6 +275,12 @@ SamV71SerialCcsdsInit_tx_handler(samv71_serial_ccsds_private_data *const self) {
   xSemaphoreGive(self->m_tx_semaphore);
 }
 
+static inline void SamV71SerialCcsdsInit_error_handler(
+    samv71_serial_ccsds_private_data *const self) {
+  self->m_uart_error_handler.callback = UartErrCallback;
+  self->m_uart_error_handler.arg = self;
+}
+
 void SamV71SerialCcsdsInit(
     void *private_data, const enum SystemBus bus_id,
     const enum SystemDevice device_id,
@@ -263,6 +296,7 @@ void SamV71SerialCcsdsInit(
   SamV71SerialCcsdsInit_uart_init(self, device_configuration);
   SamV71SerialCcsdsInit_rx_handler(self);
   SamV71SerialCcsdsInit_tx_handler(self);
+  SamV71SerialCcsdsInit_error_handler(self);
   Escaper_init(&self->m_escaper, self->m_encoded_packet_buffer,
                Serial_CCSDS_SAMV71_ENCODED_PACKET_MAX_SIZE,
                self->m_decoded_packet_buffer,

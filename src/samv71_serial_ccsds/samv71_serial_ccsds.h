@@ -71,6 +71,7 @@ typedef struct final {
   Uart_TxHandler m_uart_tx_handler;
   SemaphoreHandle_t m_tx_semaphore;
   StaticSemaphore_t m_tx_semaphore_buffer;
+  Uart_ErrorHandler m_uart_error_handler;
 } samv71_serial_ccsds_private_data;
 
 /**
