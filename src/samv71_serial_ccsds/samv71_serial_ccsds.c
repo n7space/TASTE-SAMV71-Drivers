@@ -115,7 +115,7 @@ SamV71SerialCcsdsInit_uart_register(samv71_serial_ccsds_private_data *self,
 
 static inline void
 SamV71SerialCcsdsInit_uart_handle(samv71_serial_ccsds_private_data *self,
-                                    Serial_CCSDS_SamV71_Device_T deviceName) {
+                                  Serial_CCSDS_SamV71_Device_T deviceName) {
   switch (deviceName) {
   case uart0:
     uart0handle = &self->m_hal_uart.uart;
@@ -202,7 +202,7 @@ static inline void SamV71SerialCcsdsInit_uart_init(
   SamV71SerialCcsdsInit_uart_parity(self, device_configuration->use_paritybit,
                                     device_configuration->parity);
   SamV71SerialCcsdsInit_uart_baudrate(self, device_configuration->speed);
-  SamV71SerialCcsdsInit_uart_handle(self);
+  SamV71SerialCcsdsInit_uart_handle(self, device_configuration->devname);
   Hal_uart_init(&self->m_hal_uart, self->m_hal_uart_config);
 }
 
@@ -217,6 +217,11 @@ static ByteFifo *UartTxCallback(void *private_data) {
   samv71_serial_ccsds_private_data *self =
       (samv71_serial_ccsds_private_data *)private_data;
 
+  self->m_recv_bytes_count = ByteFifo_getCount(&self->m_hal_uart.rxFifo);
+
+  for (size_t i = 0; i < self->m_recv_bytes_count; i++) {
+    ByteFifo_pull(&self->m_hal_uart.rxFifo, &self->m_recv_buffer[i]);
+  }
   xSemaphoreGiveFromISR(self->m_tx_semaphore, NULL);
   return NULL;
 }
@@ -272,7 +277,6 @@ void SamV71SerialCcsdsInit(
 void SamV71SerialCcsdsPoll(void *private_data) {
   samv71_serial_ccsds_private_data *self =
       (samv71_serial_ccsds_private_data *)private_data;
-  size_t length = 0;
 
   Escaper_start_decoder(&self->m_escaper);
   xSemaphoreTake(self->m_rx_semaphore, portMAX_DELAY);
@@ -282,19 +286,15 @@ void SamV71SerialCcsdsPoll(void *private_data) {
   while (true) {
     /// Wait for data to arrive. Semaphore will be given
     xSemaphoreTake(self->m_rx_semaphore, portMAX_DELAY);
-    length = ByteFifo_getCount(&self->m_hal_uart.rxFifo);
-    if (length <= 0) {
+    if (self->m_recv_bytes_count <= 0) {
       Hal_console_usart_write(
           (const uint8_t *const)SAMV71_SERIAL_CCSDS_POOL_ERROR,
           sizeof(SAMV71_SERIAL_CCSDS_POOL_ERROR));
       assert(false && SAMV71_SERIAL_CCSDS_POOL_ERROR);
       return;
     } else {
-      for (size_t i = 0; i < length; i++) {
-        ByteFifo_pull(&self->m_hal_uart.rxFifo, &self->m_recv_buffer[i]);
-      }
-      Escaper_decode_packet(&self->m_escaper, self->m_recv_buffer, length,
-                            Broker_receive_packet);
+      Escaper_decode_packet(&self->m_escaper, self->m_recv_buffer,
+                            self->m_recv_bytes_count, Broker_receive_packet);
     }
   }
 }
