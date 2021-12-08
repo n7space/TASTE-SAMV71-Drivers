@@ -279,6 +279,7 @@ static inline void SamV71SerialCcsdsInit_error_handler(
     samv71_serial_ccsds_private_data *const self) {
   self->m_uart_error_handler.callback = UartErrCallback;
   self->m_uart_error_handler.arg = self;
+  Uart_registerErrorHandler(&self->m_hal_uart.uart, self->m_uart_error_handler);
 }
 
 void SamV71SerialCcsdsInit(
