@@ -210,6 +210,11 @@ static void UartRxCallback(void *private_data) {
   samv71_serial_ccsds_private_data *self =
       (samv71_serial_ccsds_private_data *)private_data;
 
+  self->m_recv_bytes_count = ByteFifo_getCount(&self->m_hal_uart.rxFifo);
+
+  for (size_t i = 0; i < self->m_recv_bytes_count; i++) {
+    ByteFifo_pull(&self->m_hal_uart.rxFifo, &self->m_recv_buffer[i]);
+  }
   xSemaphoreGiveFromISR(self->m_rx_semaphore, NULL);
 }
 
@@ -217,11 +222,6 @@ static ByteFifo *UartTxCallback(void *private_data) {
   samv71_serial_ccsds_private_data *self =
       (samv71_serial_ccsds_private_data *)private_data;
 
-  self->m_recv_bytes_count = ByteFifo_getCount(&self->m_hal_uart.rxFifo);
-
-  for (size_t i = 0; i < self->m_recv_bytes_count; i++) {
-    ByteFifo_pull(&self->m_hal_uart.rxFifo, &self->m_recv_buffer[i]);
-  }
   xSemaphoreGiveFromISR(self->m_tx_semaphore, NULL);
   return NULL;
 }
