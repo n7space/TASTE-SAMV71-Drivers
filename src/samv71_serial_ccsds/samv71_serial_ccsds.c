@@ -274,8 +274,6 @@ void SamV71SerialCcsdsPoll(void *private_data) {
       (samv71_serial_ccsds_private_data *)private_data;
 
   Escaper_start_decoder(&self->m_escaper);
-  Hal_uart_read(&self->m_hal_uart, self->m_fifo_memory_block,
-                Serial_CCSDS_SAMV71_RECV_BUFFER_SIZE, self->m_uart_rx_handler);
 
   int errorCode = 0;
   uint8_t rxData[1024];
