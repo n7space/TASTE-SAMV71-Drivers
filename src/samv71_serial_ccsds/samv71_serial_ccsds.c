@@ -276,8 +276,6 @@ void SamV71SerialCcsdsPoll(void *private_data) {
   Escaper_start_decoder(&self->m_escaper);
 
   int errorCode = 0;
-  uint8_t rxData[1024];
-  size_t i = 0;
   while (true) {
     /// Wait for data to arrive. Semaphore will be given
     Uart_read(&self->m_hal_uart.uart, self->m_recv_buffer, UINT32_MAX,
@@ -289,12 +287,7 @@ void SamV71SerialCcsdsPoll(void *private_data) {
       assert(false && SAMV71_SERIAL_CCSDS_POOL_ERROR);
       return;
     } else {
-      rxData[i] = self->m_recv_buffer[0];
-      i++;
-      if (self->m_recv_buffer[0] == STOP_BYTE) {
-        Hal_console_usart_write(rxData, i);
-        i = 0;
-      }
+      Hal_console_usart_write(self->m_recv_buffer, 1);
       Escaper_decode_packet(&self->m_escaper, self->m_recv_buffer, 1,
                             Broker_receive_packet);
     }
