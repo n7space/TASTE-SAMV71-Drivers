@@ -93,7 +93,8 @@ void SamV71SerialCcsdsInit(
 /**
  * @brief Function which implements receiving data from remote partition.
  *
- * Functions works in separate thread, which is initialized by SamV71SerialCcsdsSend
+ * Functions works in separate thread, which is initialized by
+ * SamV71SerialCcsdsSend
  *
  * @param private_data   Driver private data, allocated by runtime
  */
