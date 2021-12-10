@@ -29,11 +29,11 @@
 
 #define SAMV71_SERIAL_CCSDS_POOL_ERROR "Polling error! Fifo count <= 0."
 
-Uart *uart0handle;
-Uart *uart1handle;
-Uart *uart2handle;
-Uart *uart3handle;
-Uart *uart4handle;
+Uart* uart0handle;
+Uart* uart1handle;
+Uart* uart2handle;
+Uart* uart3handle;
+Uart* uart4handle;
 
 void UART0_Handler(void) {
   if (uart0handle != NULL)
@@ -60,7 +60,7 @@ void UART4_Handler(void) {
     Uart_handleInterrupt(uart4handle);
 }
 
-static inline const char *
+static inline const char*
 SamV71_device_to_string(const Serial_CCSDS_SamV71_Device_T device) {
   switch (device) {
   case uart0: {
@@ -90,8 +90,8 @@ SamV71_device_to_string(const Serial_CCSDS_SamV71_Device_T device) {
 }
 
 static inline void
-SamV71SerialCcsdsInit_uart_register(samv71_serial_ccsds_private_data *self,
-                                    Serial_CCSDS_SamV71_Device_T deviceName) {
+SamV71SerialCcsdsInit_uart_register(samv71_serial_ccsds_private_data* self,
+  Serial_CCSDS_SamV71_Device_T deviceName) {
   switch (deviceName) {
   case uart0:
     self->m_hal_uart_config.id = Uart_Id_0;
@@ -114,8 +114,8 @@ SamV71SerialCcsdsInit_uart_register(samv71_serial_ccsds_private_data *self,
 }
 
 static inline void
-SamV71SerialCcsdsInit_uart_handle(samv71_serial_ccsds_private_data *self,
-                                  Serial_CCSDS_SamV71_Device_T deviceName) {
+SamV71SerialCcsdsInit_uart_handle(samv71_serial_ccsds_private_data* self,
+  Serial_CCSDS_SamV71_Device_T deviceName) {
   switch (deviceName) {
   case uart0:
     uart0handle = &self->m_hal_uart.uart;
@@ -138,17 +138,17 @@ SamV71SerialCcsdsInit_uart_handle(samv71_serial_ccsds_private_data *self,
 }
 
 static inline void
-SamV71SerialCcsdsInit_uart_data_bits(samv71_serial_ccsds_private_data *self,
-                                     Serial_CCSDS_SamV71_Conf_T_bits bits) {
+SamV71SerialCcsdsInit_uart_data_bits(samv71_serial_ccsds_private_data* self,
+  Serial_CCSDS_SamV71_Conf_T_bits bits) {
   (void)self;
   (void)bits;
   assert((bits == 8) && "Not supported number of data bits");
 }
 
 static inline void SamV71SerialCcsdsInit_uart_parity(
-    samv71_serial_ccsds_private_data *self,
-    Serial_CCSDS_SamV71_Conf_T_use_paritybit useParity,
-    Serial_CCSDS_SamV71_Parity_T parity) {
+  samv71_serial_ccsds_private_data* self,
+  Serial_CCSDS_SamV71_Conf_T_use_paritybit useParity,
+  Serial_CCSDS_SamV71_Parity_T parity) {
   if (useParity) {
     switch (parity) {
     case Serial_CCSDS_SamV71_Parity_T_odd:
@@ -160,14 +160,15 @@ static inline void SamV71SerialCcsdsInit_uart_parity(
     default:
       assert(false && "Not supported parity");
     }
-  } else {
+  }
+  else {
     self->m_hal_uart_config.parity = Uart_Parity_None;
   }
 }
 
 static inline void
-SamV71SerialCcsdsInit_uart_baudrate(samv71_serial_ccsds_private_data *self,
-                                    Serial_CCSDS_SamV71_Baudrate_T speed) {
+SamV71SerialCcsdsInit_uart_baudrate(samv71_serial_ccsds_private_data* self,
+  Serial_CCSDS_SamV71_Baudrate_T speed) {
 
   switch (speed) {
   case Serial_CCSDS_SamV71_Baudrate_T_b9600:
@@ -195,34 +196,34 @@ SamV71SerialCcsdsInit_uart_baudrate(samv71_serial_ccsds_private_data *self,
 }
 
 static inline void SamV71SerialCcsdsInit_uart_init(
-    samv71_serial_ccsds_private_data *const self,
-    const Serial_CCSDS_SamV71_Conf_T *const device_configuration) {
+  samv71_serial_ccsds_private_data* const self,
+  const Serial_CCSDS_SamV71_Conf_T* const device_configuration) {
   SamV71SerialCcsdsInit_uart_register(self, device_configuration->devname);
   SamV71SerialCcsdsInit_uart_data_bits(self, device_configuration->bits);
   SamV71SerialCcsdsInit_uart_parity(self, device_configuration->use_paritybit,
-                                    device_configuration->parity);
+    device_configuration->parity);
   SamV71SerialCcsdsInit_uart_baudrate(self, device_configuration->speed);
   SamV71SerialCcsdsInit_uart_handle(self, device_configuration->devname);
   Hal_uart_init(&self->m_hal_uart, self->m_hal_uart_config);
 }
 
-static void UartRxCallback(void *private_data) {
-  samv71_serial_ccsds_private_data *self =
-      (samv71_serial_ccsds_private_data *)private_data;
+static void UartRxCallback(void* private_data) {
+  samv71_serial_ccsds_private_data* self =
+    (samv71_serial_ccsds_private_data*)private_data;
 
   xSemaphoreGiveFromISR(self->m_rx_semaphore, NULL);
 }
 
-static ByteFifo *UartTxCallback(void *private_data) {
-  samv71_serial_ccsds_private_data *self =
-      (samv71_serial_ccsds_private_data *)private_data;
+static ByteFifo* UartTxCallback(void* private_data) {
+  samv71_serial_ccsds_private_data* self =
+    (samv71_serial_ccsds_private_data*)private_data;
 
   xSemaphoreGiveFromISR(self->m_tx_semaphore, NULL);
   return NULL;
 }
 
 static inline void
-SamV71SerialCcsdsInit_rx_handler(samv71_serial_ccsds_private_data *const self) {
+SamV71SerialCcsdsInit_rx_handler(samv71_serial_ccsds_private_data* const self) {
   self->m_uart_rx_handler.characterCallback = UartRxCallback;
   self->m_uart_rx_handler.lengthCallback = UartRxCallback;
   self->m_uart_rx_handler.lengthArg = self;
@@ -230,48 +231,48 @@ SamV71SerialCcsdsInit_rx_handler(samv71_serial_ccsds_private_data *const self) {
   self->m_uart_rx_handler.targetCharacter = STOP_BYTE;
   self->m_uart_rx_handler.targetLength = Serial_CCSDS_SAMV71_RECV_BUFFER_SIZE;
   self->m_rx_semaphore =
-      xSemaphoreCreateBinaryStatic(&self->m_rx_semaphore_buffer);
+    xSemaphoreCreateBinaryStatic(&self->m_rx_semaphore_buffer);
   xSemaphoreGive(self->m_rx_semaphore);
 }
 
 static inline void
-SamV71SerialCcsdsInit_tx_handler(samv71_serial_ccsds_private_data *const self) {
+SamV71SerialCcsdsInit_tx_handler(samv71_serial_ccsds_private_data* const self) {
   self->m_uart_tx_handler.callback = UartTxCallback;
   self->m_uart_tx_handler.arg = self;
   self->m_tx_semaphore =
-      xSemaphoreCreateBinaryStatic(&self->m_tx_semaphore_buffer);
+    xSemaphoreCreateBinaryStatic(&self->m_tx_semaphore_buffer);
   xSemaphoreGive(self->m_tx_semaphore);
 }
 
 void SamV71SerialCcsdsInit(
-    void *private_data, const enum SystemBus bus_id,
-    const enum SystemDevice device_id,
-    const Serial_CCSDS_SamV71_Conf_T *const device_configuration,
-    const Serial_CCSDS_SamV71_Conf_T *const remote_device_configuration) {
+  void* private_data, const enum SystemBus bus_id,
+  const enum SystemDevice device_id,
+  const Serial_CCSDS_SamV71_Conf_T* const device_configuration,
+  const Serial_CCSDS_SamV71_Conf_T* const remote_device_configuration) {
   (void)bus_id;
   (void)device_id;
   (void)remote_device_configuration;
 
-  samv71_serial_ccsds_private_data *self =
-      (samv71_serial_ccsds_private_data *)private_data;
+  samv71_serial_ccsds_private_data* self =
+    (samv71_serial_ccsds_private_data*)private_data;
 
   SamV71SerialCcsdsInit_uart_init(self, device_configuration);
   SamV71SerialCcsdsInit_rx_handler(self);
   SamV71SerialCcsdsInit_tx_handler(self);
   Escaper_init(&self->m_escaper, self->m_encoded_packet_buffer,
-               Serial_CCSDS_SAMV71_ENCODED_PACKET_MAX_SIZE,
-               self->m_decoded_packet_buffer,
-               Serial_CCSDS_SAMV71_DECODED_PACKET_MAX_SIZE);
+    Serial_CCSDS_SAMV71_ENCODED_PACKET_MAX_SIZE,
+    self->m_decoded_packet_buffer,
+    Serial_CCSDS_SAMV71_DECODED_PACKET_MAX_SIZE);
 
-  const char *devname = SamV71_device_to_string(device_configuration->devname);
+  const char* devname = SamV71_device_to_string(device_configuration->devname);
 
   xTaskCreate(SamV71SerialCcsdsPoll, devname, DRIVER_TASK_STACK_SIZE, self,
-              DRIVER_TASK_PRIORITY, &self->m_task);
+    DRIVER_TASK_PRIORITY, &self->m_task);
 }
 
-void SamV71SerialCcsdsPoll(void *private_data) {
-  samv71_serial_ccsds_private_data *self =
-      (samv71_serial_ccsds_private_data *)private_data;
+void SamV71SerialCcsdsPoll(void* private_data) {
+  samv71_serial_ccsds_private_data* self =
+    (samv71_serial_ccsds_private_data*)private_data;
 
   Escaper_start_decoder(&self->m_escaper);
 
@@ -279,25 +280,25 @@ void SamV71SerialCcsdsPoll(void *private_data) {
   while (true) {
     /// Wait for data to arrive. Semaphore will be given
     Uart_read(&self->m_hal_uart.uart, self->m_recv_buffer, UINT32_MAX,
-              &errorCode);
+      &errorCode);
     if (errorCode == Uart_ErrorCodes_Timeout) {
       Hal_console_usart_write(
-          (const uint8_t *const)SAMV71_SERIAL_CCSDS_POOL_ERROR,
-          sizeof(SAMV71_SERIAL_CCSDS_POOL_ERROR));
+        (const uint8_t* const)SAMV71_SERIAL_CCSDS_POOL_ERROR,
+        sizeof(SAMV71_SERIAL_CCSDS_POOL_ERROR));
       assert(false && SAMV71_SERIAL_CCSDS_POOL_ERROR);
       return;
-    } else {
-      Hal_console_usart_write(self->m_recv_buffer, 1);
+    }
+    else {
       Escaper_decode_packet(&self->m_escaper, self->m_recv_buffer, 1,
-                            Broker_receive_packet);
+        Broker_receive_packet);
     }
   }
 }
 
-void SamV71SerialCcsdsSend(void *private_data, const uint8_t *const data,
-                           const size_t length) {
-  samv71_serial_ccsds_private_data *self =
-      (samv71_serial_ccsds_private_data *)private_data;
+void SamV71SerialCcsdsSend(void* private_data, const uint8_t* const data,
+  const size_t length) {
+  samv71_serial_ccsds_private_data* self =
+    (samv71_serial_ccsds_private_data*)private_data;
 
   size_t index = 0;
   size_t packetLength = 0;
@@ -305,10 +306,10 @@ void SamV71SerialCcsdsSend(void *private_data, const uint8_t *const data,
   Escaper_start_encoder(&self->m_escaper);
   while (index < length) {
     packetLength =
-        Escaper_encode_packet(&self->m_escaper, data, length, &index);
+      Escaper_encode_packet(&self->m_escaper, data, length, &index);
     xSemaphoreTake(self->m_tx_semaphore, portMAX_DELAY);
     Hal_uart_write(&self->m_hal_uart,
-                   (uint8_t *const) & self->m_encoded_packet_buffer,
-                   packetLength, self->m_uart_tx_handler);
+      (uint8_t* const)&self->m_encoded_packet_buffer,
+      packetLength, self->m_uart_tx_handler);
   }
 }
