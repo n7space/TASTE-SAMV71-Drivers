@@ -277,7 +277,6 @@ void SamV71SerialCcsdsPoll(void *private_data) {
 
   int errorCode = 0;
   while (true) {
-    /// Wait for data to arrive. Semaphore will be given
     Uart_read(&self->m_hal_uart.uart, self->m_recv_buffer, UINT32_MAX,
               &errorCode);
     if (errorCode == Uart_ErrorCodes_Timeout) {
