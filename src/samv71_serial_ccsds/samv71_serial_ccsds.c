@@ -27,11 +27,11 @@
 #include <EscaperInternal.h>
 #include <samv71_serial_ccsds_internal.h>
 
-#define SAMV71_SERIAL_CCSDS_POOL_ERROR "Polling error! Fifo count <= 0."
-#define SAMV71_SERIAL_CCSDS_UART_ERROR "UART error!: "
-#define SAMV71_SERIAL_CCSDS_UART_ERROR_OVERRUN "OVERUN ERR"
-#define SAMV71_SERIAL_CCSDS_UART_ERROR_FRAME "FRAME ERR "
-#define SAMV71_SERIAL_CCSDS_UART_ERROR_PARE "PARITY ERR"
+#define SAMV71_SERIAL_CCSDS_POOL_ERROR "Polling error! Fifo count <= 0.\n\r"
+#define SAMV71_SERIAL_CCSDS_UART_ERROR "UART error!: \n\r"
+#define SAMV71_SERIAL_CCSDS_UART_ERROR_OVERRUN "OVERUN ERR\n\r"
+#define SAMV71_SERIAL_CCSDS_UART_ERROR_FRAME "FRAME ERR\n\r"
+#define SAMV71_SERIAL_CCSDS_UART_ERROR_PARE "PARITY ERR\n\r"
 
 Uart *uart0handle;
 Uart *uart1handle;
