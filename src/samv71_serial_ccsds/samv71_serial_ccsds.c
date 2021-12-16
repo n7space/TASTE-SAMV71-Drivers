@@ -213,12 +213,6 @@ static inline void SamV71SerialCcsdsInit_uart_init(
 static void UartRxCallback(void *private_data) {
   samv71_serial_ccsds_private_data *self =
       (samv71_serial_ccsds_private_data *)private_data;
-
-  self->m_recv_bytes_count = ByteFifo_getCount(&self->m_hal_uart.rxFifo);
-
-  for (size_t i = 0; i < self->m_recv_bytes_count; i++) {
-    ByteFifo_pull(&self->m_hal_uart.rxFifo, &self->m_recv_buffer[i]);
-  }
   xSemaphoreGiveFromISR(self->m_rx_semaphore, NULL);
 }
 
@@ -321,6 +315,19 @@ void SamV71SerialCcsdsPoll(void *private_data) {
   while (true) {
     /// Wait for data to arrive. Semaphore will be given
     xSemaphoreTake(self->m_rx_semaphore, portMAX_DELAY);
+
+    // todo refactor that
+    taskENTER_CRITICAL();
+    self->m_recv_bytes_count = ByteFifo_getCount(&self->m_hal_uart.rxFifo);
+    taskEXIT_CRITICAL();
+
+    for (size_t i = 0; i < self->m_recv_bytes_count; i++) {
+      taskENTER_CRITICAL();
+      ByteFifo_pull(&self->m_hal_uart.rxFifo, &self->m_recv_buffer[i]);
+      taskEXIT_CRITICAL();
+    }
+
+    /// todo m_recv_bytes_count wont be neccessary
     if (self->m_recv_bytes_count <= 0) {
       Hal_console_usart_write(
           (const uint8_t *const)SAMV71_SERIAL_CCSDS_POOL_ERROR,
