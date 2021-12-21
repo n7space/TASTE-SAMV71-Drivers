@@ -226,7 +226,7 @@ static ByteFifo *UartTxCallback(void *private_data) {
 void UartErrCallback(uint32_t errorFlags, void *arg) {
   (void)arg;
 
-  if ((errorFlags & UART_SR_OVRE_MASK) != false){
+  if ((errorFlags & UART_SR_OVRE_MASK) != false) {
     Hal_console_usart_write(
         (const uint8_t *const)SAMV71_SERIAL_CCSDS_UART_ERROR_OVERRUN,
         sizeof(SAMV71_SERIAL_CCSDS_UART_ERROR_OVERRUN));
@@ -236,7 +236,7 @@ void UartErrCallback(uint32_t errorFlags, void *arg) {
         (const uint8_t *const)SAMV71_SERIAL_CCSDS_UART_ERROR_FRAME,
         sizeof(SAMV71_SERIAL_CCSDS_UART_ERROR_FRAME));
   }
-  if ((errorFlags & UART_SR_PARE_MASK) != false){
+  if ((errorFlags & UART_SR_PARE_MASK) != false) {
     Hal_console_usart_write(
         (const uint8_t *const)SAMV71_SERIAL_CCSDS_UART_ERROR_PARE,
         sizeof(SAMV71_SERIAL_CCSDS_UART_ERROR_PARE));
