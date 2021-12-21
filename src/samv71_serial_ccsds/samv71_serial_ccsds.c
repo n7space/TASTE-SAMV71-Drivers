@@ -327,8 +327,7 @@ void SamV71SerialCcsdsPoll(void *private_data) {
 
     size_t recvBytesCount = 0;
     for (recvBytesCount = 0;
-         (recvBytesCount < Serial_CCSDS_SAMV71_RECV_BUFFER_SIZE) |
-         (recvBytesCount < Serial_CCSDS_SAMV71_FIFO_BUFFER_SIZE);
+         recvBytesCount < Serial_CCSDS_SAMV71_RECV_BUFFER_SIZE;
          recvBytesCount++) {
       SamV71SerialCcsdsInterrupt_rx_disable(self);
       if (!ByteFifo_pull(&self->m_hal_uart.rxFifo,
