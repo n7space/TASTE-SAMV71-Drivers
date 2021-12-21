@@ -28,7 +28,6 @@
 #include <samv71_serial_ccsds_internal.h>
 
 #define SAMV71_SERIAL_CCSDS_POOL_ERROR "Polling error! Fifo count <= 0.\n\r"
-#define SAMV71_SERIAL_CCSDS_UART_ERROR "UART error!: \n\r"
 #define SAMV71_SERIAL_CCSDS_UART_ERROR_OVERRUN "OVERUN ERR\n\r"
 #define SAMV71_SERIAL_CCSDS_UART_ERROR_FRAME "FRAME ERR\n\r"
 #define SAMV71_SERIAL_CCSDS_UART_ERROR_PARE "PARITY ERR\n\r"
@@ -226,9 +225,6 @@ static ByteFifo *UartTxCallback(void *private_data) {
 
 void UartErrCallback(uint32_t errorFlags, void *arg) {
   (void)arg;
-
-  Hal_console_usart_write((const uint8_t *const)SAMV71_SERIAL_CCSDS_UART_ERROR,
-                          sizeof(SAMV71_SERIAL_CCSDS_UART_ERROR));
 
   if (errorFlags & UART_SR_OVRE_MASK) {
     Hal_console_usart_write(
