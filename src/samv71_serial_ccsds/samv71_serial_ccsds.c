@@ -272,6 +272,18 @@ static inline void SamV71SerialCcsdsInit_error_handler(
   Uart_registerErrorHandler(&self->m_hal_uart.uart, self->m_uart_error_handler);
 }
 
+static inline void SamV71SerialCcsdsInterrupt_rx_enable(
+    samv71_serial_ccsds_private_data *const self) {
+  self->m_hal_uart.uart.reg->ier =
+      UART_IER_RXRDY_MASK | UART_IER_FRAME_MASK | UART_IER_OVRE_MASK;
+}
+
+static inline void SamV71SerialCcsdsInterrupt_rx_disable(
+    samv71_serial_ccsds_private_data *const self) {
+  self->m_hal_uart.uart.reg->idr =
+      UART_IDR_RXRDY_MASK | UART_IDR_FRAME_MASK | UART_IDR_OVRE_MASK;
+}
+
 void SamV71SerialCcsdsInit(
     void *private_data, const enum SystemBus bus_id,
     const enum SystemDevice device_id,
@@ -315,16 +327,12 @@ void SamV71SerialCcsdsPoll(void *private_data) {
     for (size_t i = 0; (i < Serial_CCSDS_SAMV71_RECV_BUFFER_SIZE) |
                        (i < Serial_CCSDS_SAMV71_FIFO_BUFFER_SIZE);
          i++) {
-      self->m_hal_uart.uart.reg->idr =
-          UART_IER_RXRDY_MASK | UART_IER_FRAME_MASK | UART_IER_OVRE_MASK;
+      SamV71SerialCcsdsInterrupt_rx_disable(self);
       if (!ByteFifo_pull(&self->m_hal_uart.rxFifo, &self->m_recv_buffer[i])) {
-        self->m_hal_uart.uart.reg->ier =
-            UART_IER_RXRDY_MASK | UART_IER_FRAME_MASK | UART_IER_OVRE_MASK;
+        SamV71SerialCcsdsInterrupt_rx_enable(self);
         break;
       }
-
-      self->m_hal_uart.uart.reg->ier =
-          UART_IER_RXRDY_MASK | UART_IER_FRAME_MASK | UART_IER_OVRE_MASK;
+      SamV71SerialCcsdsInterrupt_rx_enable(self);
       self->m_recv_bytes_count = i + 1;
     }
 
