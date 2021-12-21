@@ -312,18 +312,22 @@ void SamV71SerialCcsdsPoll(void *private_data) {
     /// Wait for data to arrive. Semaphore will be given
     xSemaphoreTake(self->m_rx_semaphore, portMAX_DELAY);
 
-    // todo refactor that
-    taskENTER_CRITICAL();
-    self->m_recv_bytes_count = ByteFifo_getCount(&self->m_hal_uart.rxFifo);
-    taskEXIT_CRITICAL();
+    for (size_t i = 0; (i < Serial_CCSDS_SAMV71_RECV_BUFFER_SIZE) |
+                       (i < Serial_CCSDS_SAMV71_FIFO_BUFFER_SIZE);
+         i++) {
+      self->m_hal_uart.uart.reg->idr =
+          UART_IER_RXRDY_MASK | UART_IER_FRAME_MASK | UART_IER_OVRE_MASK;
+      if (!ByteFifo_pull(&self->m_hal_uart.rxFifo, &self->m_recv_buffer[i])) {
+        self->m_hal_uart.uart.reg->ier =
+            UART_IER_RXRDY_MASK | UART_IER_FRAME_MASK | UART_IER_OVRE_MASK;
+        break;
+      }
 
-    for (size_t i = 0; i < self->m_recv_bytes_count; i++) {
-      taskENTER_CRITICAL();
-      ByteFifo_pull(&self->m_hal_uart.rxFifo, &self->m_recv_buffer[i]);
-      taskEXIT_CRITICAL();
+      self->m_hal_uart.uart.reg->ier =
+          UART_IER_RXRDY_MASK | UART_IER_FRAME_MASK | UART_IER_OVRE_MASK;
+      self->m_recv_bytes_count = i + 1;
     }
 
-    /// todo m_recv_bytes_count wont be neccessary
     if (self->m_recv_bytes_count <= 0) {
       Hal_console_usart_write(
           (const uint8_t *const)SAMV71_SERIAL_CCSDS_POOL_ERROR,
