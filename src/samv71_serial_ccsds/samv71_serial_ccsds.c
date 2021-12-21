@@ -328,13 +328,13 @@ void SamV71SerialCcsdsPoll(void *private_data) {
     for (size_t i = 0; (i < Serial_CCSDS_SAMV71_RECV_BUFFER_SIZE) |
                        (i < Serial_CCSDS_SAMV71_FIFO_BUFFER_SIZE);
          i++) {
-      SamV71SerialCcsdsInterrupt_rx_disable(self);
-      if (!ByteFifo_pull(&self->m_hal_uart.rxFifo, &self->m_recv_buffer[i])) {
+        SamV71SerialCcsdsInterrupt_rx_disable(self);
+        if (!ByteFifo_pull(&self->m_hal_uart.rxFifo, &self->m_recv_buffer[i])) {
+          SamV71SerialCcsdsInterrupt_rx_enable(self);
+          break;
+        }
         SamV71SerialCcsdsInterrupt_rx_enable(self);
-        break;
-      }
-      SamV71SerialCcsdsInterrupt_rx_enable(self);
-      self->m_recv_bytes_count = i + 1;
+        self->m_recv_bytes_count = i + 1;
     }
 
     if (self->m_recv_bytes_count <= 0) {
