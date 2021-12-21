@@ -332,6 +332,10 @@ void SamV71SerialCcsdsPoll(void *private_data) {
       SamV71SerialCcsdsInterrupt_rx_disable(self);
       if (!ByteFifo_pull(&self->m_hal_uart.rxFifo,
                          &self->m_recv_buffer[recvBytesCount])) {
+        /// This code makes sure that semaphore is taken. It might be given back
+        /// if new bytes arrive. Then in the next iteration, this code would
+        /// fail as recvBytesCount could be zero.
+        xSemaphoreTake(self->m_rx_semaphore, 0);
         SamV71SerialCcsdsInterrupt_rx_enable(self);
         break;
       }
