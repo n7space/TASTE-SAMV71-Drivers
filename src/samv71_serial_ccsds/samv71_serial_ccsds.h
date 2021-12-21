@@ -60,7 +60,6 @@ typedef struct final {
   Hal_Uart_Config m_hal_uart_config;
   uint8_t m_fifo_memory_block[Serial_CCSDS_SAMV71_FIFO_BUFFER_SIZE];
   uint8_t m_recv_buffer[Serial_CCSDS_SAMV71_RECV_BUFFER_SIZE];
-  size_t m_recv_bytes_count;
   uint8_t m_encoded_packet_buffer[Serial_CCSDS_SAMV71_ENCODED_PACKET_MAX_SIZE];
   uint8_t m_decoded_packet_buffer[Serial_CCSDS_SAMV71_DECODED_PACKET_MAX_SIZE];
   Escaper m_escaper;

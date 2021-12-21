@@ -325,19 +325,21 @@ void SamV71SerialCcsdsPoll(void *private_data) {
     /// Wait for data to arrive. Semaphore will be given
     xSemaphoreTake(self->m_rx_semaphore, portMAX_DELAY);
 
-    for (size_t i = 0; (i < Serial_CCSDS_SAMV71_RECV_BUFFER_SIZE) |
-                       (i < Serial_CCSDS_SAMV71_FIFO_BUFFER_SIZE);
-         i++) {
-        SamV71SerialCcsdsInterrupt_rx_disable(self);
-        if (!ByteFifo_pull(&self->m_hal_uart.rxFifo, &self->m_recv_buffer[i])) {
-          SamV71SerialCcsdsInterrupt_rx_enable(self);
-          break;
-        }
+    size_t recvBytesCount = 0;
+    for (recvBytesCount = 0;
+         (recvBytesCount < Serial_CCSDS_SAMV71_RECV_BUFFER_SIZE) |
+         (recvBytesCount < Serial_CCSDS_SAMV71_FIFO_BUFFER_SIZE);
+         recvBytesCount++) {
+      SamV71SerialCcsdsInterrupt_rx_disable(self);
+      if (!ByteFifo_pull(&self->m_hal_uart.rxFifo,
+                         &self->m_recv_buffer[recvBytesCount])) {
         SamV71SerialCcsdsInterrupt_rx_enable(self);
-        self->m_recv_bytes_count = i + 1;
+        break;
+      }
+      SamV71SerialCcsdsInterrupt_rx_enable(self);
     }
 
-    if (self->m_recv_bytes_count <= 0) {
+    if (recvBytesCount <= 0) {
       Hal_console_usart_write(
           (const uint8_t *const)SAMV71_SERIAL_CCSDS_POOL_ERROR,
           sizeof(SAMV71_SERIAL_CCSDS_POOL_ERROR));
@@ -345,7 +347,7 @@ void SamV71SerialCcsdsPoll(void *private_data) {
       return;
     } else {
       Escaper_decode_packet(&self->m_escaper, self->m_recv_buffer,
-                            self->m_recv_bytes_count, Broker_receive_packet);
+                            recvBytesCount, Broker_receive_packet);
     }
   }
 }
