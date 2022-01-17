@@ -314,6 +314,6 @@ void SamV71SerialCcsdsSend(void *private_data, const uint8_t *const data,
     xSemaphoreTake(self->m_tx_semaphore, portMAX_DELAY);
     Hal_uart_write(&self->m_hal_uart,
                    (uint8_t *const) & self->m_encoded_packet_buffer,
-                   packetLength, self->m_uart_tx_handler);
+                   packetLength, &self->m_uart_tx_handler);
   }
 }
