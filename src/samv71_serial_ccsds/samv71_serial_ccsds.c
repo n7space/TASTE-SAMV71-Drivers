@@ -202,7 +202,7 @@ static inline void SamV71SerialCcsdsInit_uart_init(
   SamV71SerialCcsdsInit_uart_parity(self, device_configuration->use_paritybit,
                                     device_configuration->parity);
   SamV71SerialCcsdsInit_uart_baudrate(self, device_configuration->speed);
-  SamV71SerialCcsdsInit_uart_handle(self);
+  SamV71SerialCcsdsInit_uart_handle(self, device_configuration->devname);
   Hal_uart_init(&self->m_hal_uart, self->m_hal_uart_config);
 }
 
