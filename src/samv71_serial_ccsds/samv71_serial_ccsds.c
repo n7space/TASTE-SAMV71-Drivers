@@ -115,7 +115,7 @@ SamV71SerialCcsdsInit_uart_register(samv71_serial_ccsds_private_data *self,
 
 static inline void
 SamV71SerialCcsdsInit_uart_handle(samv71_serial_ccsds_private_data *self,
-                                    Serial_CCSDS_SamV71_Device_T deviceName) {
+                                  Serial_CCSDS_SamV71_Device_T deviceName) {
   switch (deviceName) {
   case uart0:
     uart0handle = &self->m_hal_uart.uart;
