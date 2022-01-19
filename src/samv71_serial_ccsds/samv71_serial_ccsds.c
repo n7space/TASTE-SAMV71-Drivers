@@ -25,7 +25,6 @@
 #include <assert.h>
 
 #include <EscaperInternal.h>
-#include <samv71_serial_ccsds_internal.h>
 
 #define SAMV71_SERIAL_CCSDS_POOL_ERROR "Polling error! Fifo count <= 0."
 
@@ -265,8 +264,9 @@ void SamV71SerialCcsdsInit(
 
   const char *devname = SamV71_device_to_string(device_configuration->devname);
 
-  xTaskCreate(SamV71SerialCcsdsPoll, devname, DRIVER_TASK_STACK_SIZE, self,
-              DRIVER_TASK_PRIORITY, &self->m_task);
+  self->m_task = xTaskCreateStatic(
+      SamV71SerialCcsdsPoll, devname, DRIVER_TASK_STACK_SIZE, self,
+      DRIVER_TASK_PRIORITY, self->m_task_stack_buffer, &self->m_task_buffer);
 }
 
 void SamV71SerialCcsdsPoll(void *private_data) {
