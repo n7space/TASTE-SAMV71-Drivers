@@ -227,7 +227,7 @@ SamV71SerialCcsdsInit_rx_handler(samv71_serial_ccsds_private_data *const self) {
   self->m_uart_rx_handler.lengthArg = self;
   self->m_uart_rx_handler.characterArg = self;
   self->m_uart_rx_handler.targetCharacter = STOP_BYTE;
-  self->m_uart_rx_handler.targetLength = Serial_CCSDS_SAMV71_RECV_BUFFER_SIZE;
+  self->m_uart_rx_handler.targetLength = Serial_CCSDS_SAMV71_RECV_BUFFER_SIZE / 2;
   self->m_rx_semaphore =
       xSemaphoreCreateBinaryStatic(&self->m_rx_semaphore_buffer);
   xSemaphoreGive(self->m_rx_semaphore);
@@ -276,6 +276,7 @@ void SamV71SerialCcsdsPoll(void *private_data) {
 
   Escaper_start_decoder(&self->m_escaper);
   xSemaphoreTake(self->m_rx_semaphore, portMAX_DELAY);
+
   Hal_uart_read(&self->m_hal_uart, self->m_fifo_memory_block,
                 Serial_CCSDS_SAMV71_RECV_BUFFER_SIZE, self->m_uart_rx_handler);
 
