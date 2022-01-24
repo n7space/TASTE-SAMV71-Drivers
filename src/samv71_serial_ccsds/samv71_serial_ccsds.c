@@ -26,8 +26,6 @@
 
 #include <EscaperInternal.h>
 
-#define SAMV71_SERIAL_CCSDS_POOL_ERROR "Polling error! Fifo count <= 0."
-
 Uart *uart0handle;
 Uart *uart1handle;
 Uart *uart2handle;
@@ -268,20 +266,17 @@ void SamV71SerialCcsdsPoll(void *private_data) {
   while (true) {
     /// Wait for data to arrive. Semaphore will be given
     xSemaphoreTake(self->m_rx_semaphore, portMAX_DELAY);
+
     length = ByteFifo_getCount(&self->m_hal_uart.rxFifo);
-    if (length <= 0) {
-      Hal_console_usart_write(
-          (const uint8_t *const)SAMV71_SERIAL_CCSDS_POOL_ERROR,
-          sizeof(SAMV71_SERIAL_CCSDS_POOL_ERROR));
-      assert(false && SAMV71_SERIAL_CCSDS_POOL_ERROR);
-      return;
-    } else {
-      for (size_t i = 0; i < length; i++) {
-        ByteFifo_pull(&self->m_hal_uart.rxFifo, &self->m_recv_buffer[i]);
-      }
-      Escaper_decode_packet(&self->m_escaper, self->m_recv_buffer, length,
-                            Broker_receive_packet);
+
+    for (size_t i = 0; i < length; i++) {
+      self->m_hal_uart.uart.reg->idr = UART_IDR_RXRDY_MASK;
+      ByteFifo_pull(&self->m_hal_uart.rxFifo, &self->m_recv_buffer[i]);
+      self->m_hal_uart.uart.reg->ier = UART_IER_RXRDY_MASK;
     }
+
+    Escaper_decode_packet(&self->m_escaper, self->m_recv_buffer, length,
+                          Broker_receive_packet);
   }
 }
 
