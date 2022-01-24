@@ -38,9 +38,9 @@ void UART1_Handler(void) { Hal_uart_handle_interrupt(uart1handle); }
 
 void UART2_Handler(void) { Hal_uart_handle_interrupt(uart2handle); }
 
-void UART3_Handler(void) { Hal_uart_handle_interrupt(uart2handle); }
+void UART3_Handler(void) { Hal_uart_handle_interrupt(uart3handle); }
 
-void UART4_Handler(void) { Hal_uart_handle_interrupt(uart3handle); }
+void UART4_Handler(void) { Hal_uart_handle_interrupt(uart4handle); }
 
 static inline const char *
 SamV71_device_to_string(const Serial_CCSDS_SamV71_Device_T device) {
