@@ -32,15 +32,35 @@ Uart *uart2handle;
 Uart *uart3handle;
 Uart *uart4handle;
 
-void UART0_Handler(void) { Uart_handleInterrupt(uart0handle, NULL); }
+void UART0_Handler(void) {
+  if (uart0handle != NULL) {
+    Uart_handleInterrupt(uart0handle, NULL);
+  }
+}
 
-void UART1_Handler(void) { Uart_handleInterrupt(uart1handle, NULL); }
+void UART1_Handler(void) {
+  if (uart1handle != NULL) {
+    Uart_handleInterrupt(uart1handle, NULL);
+  }
+}
 
-void UART2_Handler(void) { Uart_handleInterrupt(uart2handle, NULL); }
+void UART2_Handler(void) {
+  if (uart2handle != NULL) {
+    Uart_handleInterrupt(uart2handle, NULL);
+  }
+}
 
-void UART3_Handler(void) { Uart_handleInterrupt(uart3handle, NULL); }
+void UART3_Handler(void) {
+  if (uart3handle != NULL) {
+    Uart_handleInterrupt(uart3handle, NULL);
+  }
+}
 
-void UART4_Handler(void) { Uart_handleInterrupt(uart4handle, NULL); }
+void UART4_Handler(void) {
+  if (uart4handle != NULL) {
+    Uart_handleInterrupt(uart4handle, NULL);
+  }
+}
 
 static inline const char *
 SamV71_device_to_string(const Serial_CCSDS_SamV71_Device_T device) {
