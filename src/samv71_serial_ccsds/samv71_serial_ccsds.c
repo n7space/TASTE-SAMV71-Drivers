@@ -34,31 +34,36 @@ Uart *uart4handle;
 
 void UART0_Handler(void) {
   if (uart0handle != NULL) {
-    Uart_handleInterrupt(uart0handle, NULL);
+    int error = 0;
+    Uart_handleInterrupt(uart0handle, &error);
   }
 }
 
 void UART1_Handler(void) {
   if (uart1handle != NULL) {
-    Uart_handleInterrupt(uart1handle, NULL);
+    int error = 0;
+    Uart_handleInterrupt(uart1handle, &error);
   }
 }
 
 void UART2_Handler(void) {
   if (uart2handle != NULL) {
-    Uart_handleInterrupt(uart2handle, NULL);
+    int error = 0;
+    Uart_handleInterrupt(uart2handle, &error);
   }
 }
 
 void UART3_Handler(void) {
   if (uart3handle != NULL) {
-    Uart_handleInterrupt(uart3handle, NULL);
+    int error = 0;
+    Uart_handleInterrupt(uart3handle, &error);
   }
 }
 
 void UART4_Handler(void) {
   if (uart4handle != NULL) {
-    Uart_handleInterrupt(uart4handle, NULL);
+    int error = 0;
+    Uart_handleInterrupt(uart4handle, &error);
   }
 }
 
