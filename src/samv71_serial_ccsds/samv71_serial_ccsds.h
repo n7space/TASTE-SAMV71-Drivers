@@ -43,9 +43,9 @@
 #include <semphr.h>
 #include <task.h>
 
-#define Serial_CCSDS_SAMV71_FIFO_BUFFER_SIZE 127
-#define Serial_CCSDS_SAMV71_RECV_BUFFER_SIZE 127
-#define Serial_CCSDS_SAMV71_ENCODED_PACKET_MAX_SIZE 127
+#define Serial_CCSDS_SAMV71_FIFO_BUFFER_SIZE 256
+#define Serial_CCSDS_SAMV71_RECV_BUFFER_SIZE 256
+#define Serial_CCSDS_SAMV71_ENCODED_PACKET_MAX_SIZE 256
 #define Serial_CCSDS_SAMV71_DECODED_PACKET_MAX_SIZE BROKER_BUFFER_SIZE
 
 /**
@@ -73,6 +73,7 @@ typedef struct final {
   Uart_TxHandler m_uart_tx_handler;
   SemaphoreHandle_t m_tx_semaphore;
   StaticSemaphore_t m_tx_semaphore_buffer;
+  Uart_ErrorHandler m_uart_error_handler;
 } samv71_serial_ccsds_private_data;
 
 /**

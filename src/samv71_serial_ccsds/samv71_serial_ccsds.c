@@ -26,7 +26,10 @@
 
 #include <EscaperInternal.h>
 
-#define SAMV71_SERIAL_CCSDS_POOL_ERROR "Polling error! Fifo count <= 0."
+#define SAMV71_SERIAL_CCSDS_POOL_ERROR "Polling error! Fifo count <= 0.\n\r"
+#define SAMV71_SERIAL_CCSDS_UART_ERROR_OVERRUN "OVERUN ERR\n\r"
+#define SAMV71_SERIAL_CCSDS_UART_ERROR_FRAME "FRAME ERR\n\r"
+#define SAMV71_SERIAL_CCSDS_UART_ERROR_PARE "PARITY ERR\n\r"
 
 Uart *uart0handle;
 Uart *uart1handle;
@@ -208,7 +211,6 @@ static inline void SamV71SerialCcsdsInit_uart_init(
 static void UartRxCallback(void *private_data) {
   samv71_serial_ccsds_private_data *self =
       (samv71_serial_ccsds_private_data *)private_data;
-
   xSemaphoreGiveFromISR(self->m_rx_semaphore, NULL);
 }
 
@@ -220,6 +222,26 @@ static ByteFifo *UartTxCallback(void *private_data) {
   return NULL;
 }
 
+void UartErrCallback(uint32_t errorFlags, void *arg) {
+  (void)arg;
+
+  if ((errorFlags & UART_SR_OVRE_MASK) != false) {
+    Hal_console_usart_write(
+        (const uint8_t *const)SAMV71_SERIAL_CCSDS_UART_ERROR_OVERRUN,
+        sizeof(SAMV71_SERIAL_CCSDS_UART_ERROR_OVERRUN));
+  }
+  if ((errorFlags & UART_SR_FRAME_MASK) != false) {
+    Hal_console_usart_write(
+        (const uint8_t *const)SAMV71_SERIAL_CCSDS_UART_ERROR_FRAME,
+        sizeof(SAMV71_SERIAL_CCSDS_UART_ERROR_FRAME));
+  }
+  if ((errorFlags & UART_SR_PARE_MASK) != false) {
+    Hal_console_usart_write(
+        (const uint8_t *const)SAMV71_SERIAL_CCSDS_UART_ERROR_PARE,
+        sizeof(SAMV71_SERIAL_CCSDS_UART_ERROR_PARE));
+  }
+}
+
 static inline void
 SamV71SerialCcsdsInit_rx_handler(samv71_serial_ccsds_private_data *const self) {
   self->m_uart_rx_handler.characterCallback = UartRxCallback;
@@ -227,7 +249,8 @@ SamV71SerialCcsdsInit_rx_handler(samv71_serial_ccsds_private_data *const self) {
   self->m_uart_rx_handler.lengthArg = self;
   self->m_uart_rx_handler.characterArg = self;
   self->m_uart_rx_handler.targetCharacter = STOP_BYTE;
-  self->m_uart_rx_handler.targetLength = Serial_CCSDS_SAMV71_RECV_BUFFER_SIZE;
+  self->m_uart_rx_handler.targetLength =
+      Serial_CCSDS_SAMV71_RECV_BUFFER_SIZE / 2;
   self->m_rx_semaphore =
       xSemaphoreCreateBinaryStatic(&self->m_rx_semaphore_buffer);
   xSemaphoreGive(self->m_rx_semaphore);
@@ -240,6 +263,25 @@ SamV71SerialCcsdsInit_tx_handler(samv71_serial_ccsds_private_data *const self) {
   self->m_tx_semaphore =
       xSemaphoreCreateBinaryStatic(&self->m_tx_semaphore_buffer);
   xSemaphoreGive(self->m_tx_semaphore);
+}
+
+static inline void SamV71SerialCcsdsInit_error_handler(
+    samv71_serial_ccsds_private_data *const self) {
+  self->m_uart_error_handler.callback = UartErrCallback;
+  self->m_uart_error_handler.arg = self;
+  Uart_registerErrorHandler(&self->m_hal_uart.uart, self->m_uart_error_handler);
+}
+
+static inline void SamV71SerialCcsdsInterrupt_rx_enable(
+    samv71_serial_ccsds_private_data *const self) {
+  self->m_hal_uart.uart.reg->ier =
+      UART_IER_RXRDY_MASK | UART_IER_FRAME_MASK | UART_IER_OVRE_MASK;
+}
+
+static inline void SamV71SerialCcsdsInterrupt_rx_disable(
+    samv71_serial_ccsds_private_data *const self) {
+  self->m_hal_uart.uart.reg->idr =
+      UART_IDR_RXRDY_MASK | UART_IDR_FRAME_MASK | UART_IDR_OVRE_MASK;
 }
 
 void SamV71SerialCcsdsInit(
@@ -257,6 +299,7 @@ void SamV71SerialCcsdsInit(
   SamV71SerialCcsdsInit_uart_init(self, device_configuration);
   SamV71SerialCcsdsInit_rx_handler(self);
   SamV71SerialCcsdsInit_tx_handler(self);
+  SamV71SerialCcsdsInit_error_handler(self);
   Escaper_init(&self->m_escaper, self->m_encoded_packet_buffer,
                Serial_CCSDS_SAMV71_ENCODED_PACKET_MAX_SIZE,
                self->m_decoded_packet_buffer,
@@ -272,29 +315,42 @@ void SamV71SerialCcsdsInit(
 void SamV71SerialCcsdsPoll(void *private_data) {
   samv71_serial_ccsds_private_data *self =
       (samv71_serial_ccsds_private_data *)private_data;
-  size_t length = 0;
 
   Escaper_start_decoder(&self->m_escaper);
+
   xSemaphoreTake(self->m_rx_semaphore, portMAX_DELAY);
   Hal_uart_read(&self->m_hal_uart, self->m_fifo_memory_block,
                 Serial_CCSDS_SAMV71_RECV_BUFFER_SIZE, self->m_uart_rx_handler);
-
   while (true) {
     /// Wait for data to arrive. Semaphore will be given
     xSemaphoreTake(self->m_rx_semaphore, portMAX_DELAY);
-    length = ByteFifo_getCount(&self->m_hal_uart.rxFifo);
-    if (length <= 0) {
+
+    size_t recvBytesCount = 0;
+    for (recvBytesCount = 0;
+         recvBytesCount < Serial_CCSDS_SAMV71_RECV_BUFFER_SIZE;
+         recvBytesCount++) {
+      SamV71SerialCcsdsInterrupt_rx_disable(self);
+      if (!ByteFifo_pull(&self->m_hal_uart.rxFifo,
+                         &self->m_recv_buffer[recvBytesCount])) {
+        /// This code makes sure that semaphore is taken. It might be given back
+        /// if new bytes arrive. Then in the next iteration, this code would
+        /// fail as recvBytesCount could be zero.
+        xSemaphoreTake(self->m_rx_semaphore, 0);
+        SamV71SerialCcsdsInterrupt_rx_enable(self);
+        break;
+      }
+      SamV71SerialCcsdsInterrupt_rx_enable(self);
+    }
+
+    if (recvBytesCount <= 0) {
       Hal_console_usart_write(
           (const uint8_t *const)SAMV71_SERIAL_CCSDS_POOL_ERROR,
           sizeof(SAMV71_SERIAL_CCSDS_POOL_ERROR));
       assert(false && SAMV71_SERIAL_CCSDS_POOL_ERROR);
       return;
     } else {
-      for (size_t i = 0; i < length; i++) {
-        ByteFifo_pull(&self->m_hal_uart.rxFifo, &self->m_recv_buffer[i]);
-      }
-      Escaper_decode_packet(&self->m_escaper, self->m_recv_buffer, length,
-                            Broker_receive_packet);
+      Escaper_decode_packet(&self->m_escaper, self->m_recv_buffer,
+                            recvBytesCount, Broker_receive_packet);
     }
   }
 }
