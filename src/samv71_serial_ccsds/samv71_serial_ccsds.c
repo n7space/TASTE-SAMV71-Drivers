@@ -33,33 +33,28 @@ Uart *uart3handle;
 Uart *uart4handle;
 
 void UART0_Handler(void) {
-  if (uart0handle != NULL) {
+  if (uart0handle != NULL)
     Uart_handleInterrupt(uart0handle);
-  }
 }
 
 void UART1_Handler(void) {
-  if (uart1handle != NULL) {
+  if (uart1handle != NULL)
     Uart_handleInterrupt(uart1handle);
-  }
 }
 
 void UART2_Handler(void) {
-  if (uart2handle != NULL) {
+  if (uart2handle != NULL)
     Uart_handleInterrupt(uart2handle);
-  }
 }
 
 void UART3_Handler(void) {
-  if (uart3handle != NULL) {
+  if (uart3handle != NULL)
     Uart_handleInterrupt(uart3handle);
-  }
 }
 
 void UART4_Handler(void) {
-  if (uart4handle != NULL) {
+  if (uart4handle != NULL)
     Uart_handleInterrupt(uart4handle);
-  }
 }
 
 static inline const char *
