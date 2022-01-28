@@ -295,9 +295,9 @@ void SamV71SerialCcsdsPoll(void *private_data) {
     length = ByteFifo_getCount(&self->m_hal_uart.rxFifo);
 
     for (size_t i = 0; i < length; i++) {
-      self->m_hal_uart.uart.reg->idr = UART_IDR_RXRDY_MASK;
+      SamV71SerialCcsdsInterrupt_rx_disable(self);
       ByteFifo_pull(&self->m_hal_uart.rxFifo, &self->m_recv_buffer[i]);
-      self->m_hal_uart.uart.reg->ier = UART_IER_RXRDY_MASK;
+      SamV71SerialCcsdsInterrupt_rx_enable(self);
     }
 
     Escaper_decode_packet(&self->m_escaper, self->m_recv_buffer, length,
