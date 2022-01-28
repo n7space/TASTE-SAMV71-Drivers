@@ -28,6 +28,7 @@
  * @brief    Driver for TASTE with uses UART for communication
  */
 
+#include "samv71_serial_ccsds_internal.h"
 #include <Broker.h>
 #include <Escaper.h>
 
@@ -64,6 +65,8 @@ typedef struct final {
   uint8_t m_decoded_packet_buffer[Serial_CCSDS_SAMV71_DECODED_PACKET_MAX_SIZE];
   Escaper m_escaper;
   TaskHandle_t m_task;
+  StaticTask_t m_task_buffer;
+  StackType_t m_task_stack_buffer[DRIVER_TASK_STACK_SIZE];
   Uart_RxHandler m_uart_rx_handler;
   SemaphoreHandle_t m_rx_semaphore;
   StaticSemaphore_t m_rx_semaphore_buffer;
