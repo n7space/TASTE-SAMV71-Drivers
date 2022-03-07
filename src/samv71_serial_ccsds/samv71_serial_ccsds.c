@@ -26,37 +26,6 @@
 
 #include <EscaperInternal.h>
 
-Uart *uart0handle;
-Uart *uart1handle;
-Uart *uart2handle;
-Uart *uart3handle;
-Uart *uart4handle;
-
-void UART0_Handler(void) {
-  if (uart0handle != NULL)
-    Uart_handleInterrupt(uart0handle);
-}
-
-void UART1_Handler(void) {
-  if (uart1handle != NULL)
-    Uart_handleInterrupt(uart1handle);
-}
-
-void UART2_Handler(void) {
-  if (uart2handle != NULL)
-    Uart_handleInterrupt(uart2handle);
-}
-
-void UART3_Handler(void) {
-  if (uart3handle != NULL)
-    Uart_handleInterrupt(uart3handle);
-}
-
-void UART4_Handler(void) {
-  if (uart4handle != NULL)
-    Uart_handleInterrupt(uart4handle);
-}
-
 static inline const char *
 SamV71_device_to_string(const Serial_CCSDS_SamV71_Device_T device) {
   switch (device) {
@@ -104,30 +73,6 @@ SamV71SerialCcsdsInit_uart_register(samv71_serial_ccsds_private_data *self,
     break;
   case uart4:
     self->m_hal_uart_config.id = Uart_Id_4;
-    break;
-  default:
-    assert(false && "Not supported device name");
-  }
-}
-
-static inline void
-SamV71SerialCcsdsInit_uart_handle(samv71_serial_ccsds_private_data *self,
-                                  Serial_CCSDS_SamV71_Device_T deviceName) {
-  switch (deviceName) {
-  case uart0:
-    uart0handle = &self->m_hal_uart.uart;
-    break;
-  case uart1:
-    uart1handle = &self->m_hal_uart.uart;
-    break;
-  case uart2:
-    uart2handle = &self->m_hal_uart.uart;
-    break;
-  case uart3:
-    uart3handle = &self->m_hal_uart.uart;
-    break;
-  case uart4:
-    uart4handle = &self->m_hal_uart.uart;
     break;
   default:
     assert(false && "Not supported device name");
@@ -199,7 +144,6 @@ static inline void SamV71SerialCcsdsInit_uart_init(
   SamV71SerialCcsdsInit_uart_parity(self, device_configuration->use_paritybit,
                                     device_configuration->parity);
   SamV71SerialCcsdsInit_uart_baudrate(self, device_configuration->speed);
-  SamV71SerialCcsdsInit_uart_handle(self, device_configuration->devname);
   Hal_uart_init(&self->m_hal_uart, self->m_hal_uart_config);
 }
 
