@@ -204,7 +204,7 @@ void SamV71SerialCcsdsInit(
   (void)device_id;
   (void)remote_device_configuration;
 
-  m_ip_device_bus_id = bus_id;
+  self->m_ip_device_bus_id = bus_id;
 
   samv71_serial_ccsds_private_data *self =
       (samv71_serial_ccsds_private_data *)private_data;
