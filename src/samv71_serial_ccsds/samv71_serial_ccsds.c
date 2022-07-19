@@ -201,12 +201,13 @@ void SamV71SerialCcsdsInit(
     const enum SystemDevice device_id,
     const Serial_CCSDS_SamV71_Conf_T *const device_configuration,
     const Serial_CCSDS_SamV71_Conf_T *const remote_device_configuration) {
-  (void)bus_id;
   (void)device_id;
   (void)remote_device_configuration;
 
   samv71_serial_ccsds_private_data *self =
       (samv71_serial_ccsds_private_data *)private_data;
+
+  self->m_ip_device_bus_id = bus_id;
 
   SamV71SerialCcsdsInit_uart_init(self, device_configuration);
   SamV71SerialCcsdsInit_rx_handler(self);
@@ -244,8 +245,8 @@ void SamV71SerialCcsdsPoll(void *private_data) {
       SamV71SerialCcsdsInterrupt_rx_enable(self);
     }
 
-    Escaper_decode_packet(&self->m_escaper, self->m_recv_buffer, length,
-                          Broker_receive_packet);
+    Escaper_decode_packet(&self->m_escaper, self->m_ip_device_bus_id, self->m_recv_buffer,
+                          length, Broker_receive_packet);
   }
 }
 

@@ -64,6 +64,7 @@ typedef struct final {
   uint8_t m_encoded_packet_buffer[Serial_CCSDS_SAMV71_ENCODED_PACKET_MAX_SIZE];
   uint8_t m_decoded_packet_buffer[Serial_CCSDS_SAMV71_DECODED_PACKET_MAX_SIZE];
   Escaper m_escaper;
+  enum SystemBus m_ip_device_bus_id;
   TaskHandle_t m_task;
   StaticTask_t m_task_buffer;
   StackType_t m_task_stack_buffer[DRIVER_TASK_STACK_SIZE];
