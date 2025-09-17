@@ -22,6 +22,7 @@
 
 #include <PacketSender.h>
 #include <Packetizer.h>
+#include <system_spec.h>
 
 #include <string.h>
 
@@ -37,8 +38,9 @@ inline static void CreatePacket(Packetizer *packetizer,
                                 uint8_t *const packetData) {
   memcpy(&packetData[SPACE_PACKET_PRIMARY_HEADER_SIZE], TASK_MSG,
          sizeof(TASK_MSG));
-  Packetizer_init(packetizer);
-  Packetizer_packetize(packetizer, Packetizer_PacketType_Telemetry, 0, 0,
+  size_t headerSize = 0;
+  Packetizer_init(packetizer, BUS_1, &headerSize);
+  Packetizer_packetize(packetizer, Packetizer_PacketType_Telemetry, BUS_1, 0, 0,
                        packetData, SPACE_PACKET_PRIMARY_HEADER_SIZE,
                        sizeof(TASK_MSG));
 }
