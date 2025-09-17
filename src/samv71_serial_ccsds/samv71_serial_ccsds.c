@@ -245,8 +245,8 @@ void SamV71SerialCcsdsPoll(void *private_data) {
       SamV71SerialCcsdsInterrupt_rx_enable(self);
     }
 
-    Escaper_decode_packet(&self->m_escaper, self->m_ip_device_bus_id, self->m_recv_buffer,
-                          length, Broker_receive_packet);
+    Escaper_decode_packet(&self->m_escaper, self->m_ip_device_bus_id,
+                          self->m_recv_buffer, length, Broker_receive_packet);
   }
 }
 
@@ -264,7 +264,7 @@ void SamV71SerialCcsdsSend(void *private_data, const uint8_t *const data,
         Escaper_encode_packet(&self->m_escaper, data, length, &index);
     xSemaphoreTake(self->m_tx_semaphore, portMAX_DELAY);
     Hal_uart_write(&self->m_hal_uart,
-                   (uint8_t *const) & self->m_encoded_packet_buffer,
-                   packetLength, &self->m_uart_tx_handler);
+                   (uint8_t *const)&self->m_encoded_packet_buffer, packetLength,
+                   &self->m_uart_tx_handler);
   }
 }
